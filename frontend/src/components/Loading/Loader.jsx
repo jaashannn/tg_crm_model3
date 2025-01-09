@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import Img from '../../assets/icon.ico'
+import Img from '../../assets/icon.ico';
 
 const Loader = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate loading for 3 seconds (this can be replaced by actual loading logic)
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000); // Adjust the time as needed
-  }, []);
-
   return (
-    <div className={`fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 ${isLoading ? '' : 'hidden'}`}>
+    <div
+      className= 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 '
+    >
       <img
         src={Img}
         alt="Loading"
-        className="w-32 h-32 opacity-0 scale-50 animate-fadeIn"
+        className="w-24 h-24 opacity-100 animate-spin-slow" // Set size and animation class
       />
     </div>
   );

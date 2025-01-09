@@ -6,6 +6,8 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
+import Loader from '../Loading/Loader'
+
 const LeadList = () => {
   const [leads, setLeads] = useState([]);
   const [leadLoading, setLeadLoading] = useState(false);
@@ -134,7 +136,7 @@ const LeadList = () => {
   
   
   if (leadLoading) {
-    return <div>Loading ...</div>;
+    return <Loader />
   }
 
   return (
