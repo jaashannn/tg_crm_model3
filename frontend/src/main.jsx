@@ -3,6 +3,7 @@ import App from './App.jsx';
 import './index.css';
 import AuthContext from './context/authContext.jsx';
 import { Toaster } from 'react-hot-toast'; // Import Toaster
+import Footer from './components/Footer/Footer';  // Import Footer
 
 createRoot(document.getElementById('root')).render(
   <AuthContext>
@@ -11,6 +12,7 @@ createRoot(document.getElementById('root')).render(
       <div id="app-content" className="hidden sm:block">
         <Toaster position="top-right" /> {/* Add Toaster here */}
         <App />
+        <Footer /> {/* Add Footer globally */}
       </div>
 
       {/* Show this for mobile screens */}

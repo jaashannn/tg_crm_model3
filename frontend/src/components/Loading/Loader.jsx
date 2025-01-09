@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Img from '../../assets/icon.ico'
 
 const Loader = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +14,7 @@ const Loader = () => {
   return (
     <div className={`fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 ${isLoading ? '' : 'hidden'}`}>
       <img
-        src="path_to_your_logo.png" // Your logo image
+        src={Img}
         alt="Loading"
         className="w-32 h-32 opacity-0 scale-50 animate-fadeIn"
       />
