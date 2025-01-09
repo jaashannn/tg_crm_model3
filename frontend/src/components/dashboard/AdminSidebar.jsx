@@ -154,7 +154,7 @@ const AdminSidebar = () => {
             className="flex items-center justify-between px-4 py-2 text-white mt-4 font-semibold cursor-pointer"
             onClick={toggleHr}
           >
-            <span>Admin</span>
+            <span>HR</span>
             {isHrOpen ? <FaCaretUp /> : <FaCaretDown />}
           </div>
 

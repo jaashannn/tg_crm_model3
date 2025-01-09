@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { columns, LeaveButtons } from "../../utils/LeaveHelper";
 import axios from "axios";
+import Loader from "../Loading/Loader";
 
 const Table = () => {
   const [leaves, setLeaves] = useState(null);
@@ -62,7 +63,7 @@ const Table = () => {
 
   return (
     <>
-      {filteredLeaves ? (
+      {filteredLeaves ? <Loader /> : (
         <div className="p-6">
           <div className="text-center">
             <h3 className="text-2xl font-bold">Manage Leaves</h3>
@@ -94,8 +95,6 @@ const Table = () => {
             <DataTable columns={columns} data={filteredLeaves} pagination />
           </div>
         </div>
-      ) : (
-        <div>Loading ...</div>
       )}
     </>
   );

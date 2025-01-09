@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import Loading from '../Loading/Loader';
+import Loader from '../Loading/Loader';
 
 const Meetings = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -124,7 +124,7 @@ const Meetings = () => {
 
   // Loading UI
   if (empLoading || meetingLoading) {
-    return <Loading />;
+    return <Loader />;
   }
 
   return (

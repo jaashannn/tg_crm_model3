@@ -9,6 +9,7 @@ import {
 } from '../../../utils/employee/EmployeeLeadHelper'; // Import limited columns
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
+import Loader from '../../Loading/Loader';
 
 const EmployeeLeadList = () => {
   const [leads, setLeads] = useState([]);
@@ -72,7 +73,7 @@ const EmployeeLeadList = () => {
   };
 
   if (leadLoading) {
-    return <div>Loading ...</div>;
+    return <Loader />
   }
 
   return (

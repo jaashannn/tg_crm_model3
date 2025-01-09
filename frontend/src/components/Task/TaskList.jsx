@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
+import Loader from '../Loading/Loader';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -69,7 +70,7 @@ const TaskList = () => {
   };
 
   if (taskLoading) {
-    return <div>Loading ...</div>;
+    return <Loader />
   }
 
   return (

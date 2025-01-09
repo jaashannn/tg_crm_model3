@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Loader from '../Loading/Loader'
 
 const Detail = () => {
   const { id } = useParams();
@@ -55,7 +56,7 @@ const Detail = () => {
 
   return (
     <>
-      {leave ? (
+      {!leave ? <Loader />     : (
         <div className="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-md shadow-md">
           <h2 className="text-2xl font-bold mb-8 text-center">
             Leave Details
@@ -118,8 +119,6 @@ const Detail = () => {
             </div>
           </div>
         </div>
-      ) : (
-        <div> Loading ....</div>
       )}
     </>
   );

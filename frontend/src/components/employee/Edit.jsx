@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchDepartments } from "../../utils/EmployeeHelper";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-
+import Loader from '../Loading/Loader'
 const Edit = () => {
   const [employee, setEmployee] = useState({
     name: "",
@@ -189,7 +189,7 @@ const Edit = () => {
           </form>
         </div>
       ) : (
-        <div>Loading...</div>
+        <Loader />
       )}
     </>
   );

@@ -10,6 +10,7 @@ import {
   FaStickyNote,
   FaRegPaperPlane,
 } from "react-icons/fa";
+import Loader from "../../Loading/Loader";
 
 const EmployeeViewLead = () => {
   const { id } = useParams();
@@ -333,7 +334,7 @@ const EmployeeViewLead = () => {
         </div>
       ) : (
         <div className="flex justify-center items-center h-screen">
-          <p>Loading...</p>
+          <Loader />
         </div>
       )}
     </>

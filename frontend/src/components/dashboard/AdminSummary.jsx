@@ -4,6 +4,8 @@ import { Line } from 'react-chartjs-2';
 import { useState,useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import axios from 'axios';
+import Loader from '../Loading/Loader'
+
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,
@@ -201,7 +203,7 @@ const Dashboard = () => {
           <h2 className="text-2xl font-semibold text-[#1b0541] mb-4">Upcoming Meetings</h2>
           <div className="space-y-4">
             {meetingLoading ? (
-              <p className="text-center text-gray-500">Loading meetings...</p>
+              <Loader />
             ) : meetings.length > 0 ? (
               meetings.map((meeting) => (
                 <div key={meeting._id} className="flex justify-between">

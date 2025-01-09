@@ -10,6 +10,7 @@ import {
   FaStickyNote,
   FaRegPaperPlane,
 } from "react-icons/fa";
+import Loader from "../Loading/Loader";
 
 const ViewLead = () => {
   const { id } = useParams();
@@ -111,7 +112,7 @@ const ViewLead = () => {
 
   return (
     <>
-      {lead ? (
+      {!lead ? <Loader /> : (
         <div className="min-h-screen bg-gray-100 px-10 py-8">
           {/* Header Section */}
           <div className="border-b border-gray-300 pb-6 mb-8">
@@ -346,11 +347,7 @@ const ViewLead = () => {
             </div>
           )}
         </div>
-      ) : (
-        <div className="flex justify-center items-center h-screen">
-          <p>Loading...</p>
-        </div>
-      )}
+      ) }
     </>
   );
 };
