@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
+import Loader from "../Loading/Loader"; // Assuming you have a loader component
 
 const List = () => {
   const [leaves, setLeaves] = useState(null);
+  const [search, setSearch] = useState(""); // For searching by department
   let sno = 1;
   const { id } = useParams();
   const { user } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // Fetch leaves data from the API
   const fetchLeaves = async () => {
     try {
       const response = await axios.get(
@@ -24,18 +27,28 @@ const List = () => {
         setLeaves(response.data.leaves);
       }
     } catch (error) {
+      console.error("Error fetching leaves:", error);
       if (error.response && !error.response.data.success) {
-        alert(error.message);
+        alert("Error: " + error.message);
       }
     }
   };
+
+  // Filter leaves based on search input
+  const filteredLeaves = leaves
+    ? leaves.filter((leave) =>
+        leave.employeeId.department.dep_name
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      )
+    : [];
 
   useEffect(() => {
     fetchLeaves();
   }, []);
 
   if (!leaves) {
-    return <div> Loadding </div>;
+    return <Loader />; // Show a loader while fetching data
   }
 
   return (
@@ -43,10 +56,12 @@ const List = () => {
       <div className="text-center">
         <h3 className="text-2xl font-bold">Manage Leaves</h3>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-6">
         <input
           type="text"
-          placeholder="Seach By Dep Name"
+          placeholder="Search By Dep Name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="px-4 py-0.5 border"
         />
         {user.role === "employee" && (
@@ -71,7 +86,7 @@ const List = () => {
           </tr>
         </thead>
         <tbody>
-          {leaves.map((leave) => (
+          {filteredLeaves.map((leave) => (
             <tr
               key={leave._id}
               className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
