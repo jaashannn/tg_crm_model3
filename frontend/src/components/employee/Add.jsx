@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import { fetchDepartments } from "../../utils/EmployeeHelper";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const Add = () => {
   const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({});
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
-  // `${apiUrl}/api/`
-
 
   useEffect(() => {
     const getDepartments = async () => {
-      const departments = await fetchDepartments();
-      setDepartments(departments);
+      try {
+        const departments = await fetchDepartments();
+        setDepartments(departments);
+      } catch (error) {
+        toast.error("Failed to fetch departments");
+      }
     };
     getDepartments();
   }, []);
@@ -31,14 +34,14 @@ const Add = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formDataObj = new FormData()
+    const formDataObj = new FormData();
     Object.keys(formData).forEach((key) => {
-        formDataObj.append(key, formData[key])
-    })
+      formDataObj.append(key, formData[key]);
+    });
 
     try {
       const response = await axios.post(
-      `${apiUrl}/api/employee/add`,
+        `${apiUrl}/api/employee/add`,
         formDataObj,
         {
           headers: {
@@ -47,14 +50,14 @@ const Add = () => {
         }
       );
       if (response.data.success) {
+        toast.success("Employee added successfully!");
         navigate("/admin-dashboard/employees");
+      } else {
+        toast.error(response.data.error || "Error adding employee");
       }
     } catch (error) {
-      if (error.response && !error.response.data.success) {
-        alert(error.response.data.error);
-      }
+      toast.error("Failed to add employee, please try again.");
     }
-      
   };
 
   return (
@@ -116,7 +119,6 @@ const Add = () => {
               type="date"
               name="dob"
               onChange={handleChange}
-              placeholder="DOB"
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
               required
             />
@@ -148,7 +150,6 @@ const Add = () => {
             <select
               name="maritalStatus"
               onChange={handleChange}
-              placeholder="Marital Status"
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
               required
             >
@@ -185,11 +186,15 @@ const Add = () => {
               required
             >
               <option value="">Select Department</option>
-              {departments.map((dep) => (
-                <option key={dep._id} value={dep._id}>
-                  {dep.dep_name}
-                </option>
-              ))}
+              {departments.length > 0 ? (
+                departments.map((dep) => (
+                  <option key={dep._id} value={dep._id}>
+                    {dep.dep_name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No departments available</option>
+              )}
             </select>
           </div>
 
@@ -249,7 +254,6 @@ const Add = () => {
               type="file"
               name="image"
               onChange={handleChange}
-              placeholder="Upload Image"
               accept="image/*"
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
             />
