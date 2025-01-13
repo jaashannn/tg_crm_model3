@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import Loader from '../Loading/Loader';
+import { toast } from 'react-hot-toast';  // Import toast for notifications
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -33,12 +34,12 @@ const TaskList = () => {
 
           setTasks(formattedTasks);
           setFilteredTasks(formattedTasks);
+        } else {
+          toast.error('Failed to fetch tasks!');
         }
       } catch (error) {
         console.error('Error fetching tasks:', error.message);
-        if (error.response && !error.response.data.success) {
-          alert(error.response.data.error);
-        }
+        toast.error('Failed to fetch tasks. Please try again.');
       } finally {
         setTaskLoading(false);
       }

@@ -20,6 +20,8 @@ const ViewTask = () => {
   const [noteContent, setNoteContent] = useState("");
   const [callDuration, setCallDuration] = useState("");
   const [callNotes, setCallNotes] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false); // For disabling the save button
+  const [isSavingCallLog, setIsSavingCallLog] = useState(false); // For disabling the save button
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -44,10 +46,24 @@ const ViewTask = () => {
   }, [id]);
 
   const handleAddNote = async () => {
+    if (!noteTitle || !noteContent) {
+      toast.error("Please fill out all fields for the note.");
+      return;
+    }
+
+    const newNote = { leadId: id, title: noteTitle, content: noteContent };
+
+    // Optimistic UI update
+    setTask((prevTask) => ({
+      ...prevTask,
+      notes: [...prevTask.notes, newNote], // Assuming task has a notes field
+    }));
+
+    setIsSavingNote(true);
     try {
       const response = await axios.post(
         `${apiUrl}/api/note/add`,
-        { leadId: id, title: noteTitle, content: noteContent },
+        newNote,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -63,14 +79,35 @@ const ViewTask = () => {
       }
     } catch (error) {
       toast.error("Failed to save the note.");
+      // Revert optimistic update on failure
+      setTask((prevTask) => ({
+        ...prevTask,
+        notes: prevTask.notes.filter((note) => note.title !== noteTitle),
+      }));
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
   const handleAddCallLog = async () => {
+    if (!callDuration || !callNotes) {
+      toast.error("Please fill out all fields for the call log.");
+      return;
+    }
+
+    const newCallLog = { leadId: id, callDuration, callNotes };
+
+    // Optimistic UI update
+    setTask((prevTask) => ({
+      ...prevTask,
+      callLogs: [...prevTask.callLogs, newCallLog], // Assuming task has callLogs field
+    }));
+
+    setIsSavingCallLog(true);
     try {
       const response = await axios.post(
         `${apiUrl}/api/calllog/add`,
-        { leadId: id, callDuration, callNotes },
+        newCallLog,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -86,6 +123,13 @@ const ViewTask = () => {
       }
     } catch (error) {
       toast.error("Failed to save the call log.");
+      // Revert optimistic update on failure
+      setTask((prevTask) => ({
+        ...prevTask,
+        callLogs: prevTask.callLogs.filter((log) => log.callDuration !== callDuration),
+      }));
+    } finally {
+      setIsSavingCallLog(false);
     }
   };
 
@@ -162,6 +206,7 @@ const ViewTask = () => {
                   />
                 </>
               }
+              isSaving={isSavingNote}
             />
           )}
 
@@ -184,6 +229,7 @@ const ViewTask = () => {
                   />
                 </>
               }
+              isSaving={isSavingCallLog}
             />
           )}
         </div>
@@ -193,7 +239,7 @@ const ViewTask = () => {
 };
 
 // Reusable Components
-const Modal = ({ title, onClose, onSave, content }) => (
+const Modal = ({ title, onClose, onSave, content, isSaving }) => (
   <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
     <div className="bg-white rounded-md shadow-lg w-96 p-6">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
@@ -207,9 +253,10 @@ const Modal = ({ title, onClose, onSave, content }) => (
         </button>
         <button
           onClick={onSave}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          disabled={isSaving}
+          className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          Save
+          {isSaving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Loader from "../Loading/Loader"
 import { toast } from "react-hot-toast"; // Import toast for notifications
 
 const AssignTask = () => {
@@ -75,6 +76,12 @@ const AssignTask = () => {
     e.preventDefault();
     if (!selectedEmployee || !taskDescription || !priority || !deadline) {
       toast.error("Please fill all the required fields.");
+      return;
+    }
+
+    // Ensure that the deadline is not in the past
+    if (new Date(deadline) < new Date()) {
+      toast.error("Deadline cannot be in the past.");
       return;
     }
 
@@ -218,6 +225,10 @@ const AssignTask = () => {
           {isSubmitting ? "Assigning Task..." : "Assign Task"}
         </button>
       </form>
+
+      {leadLoading && (
+       <Loader />
+      )}
     </div>
   );
 };
