@@ -1,48 +1,56 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; // Import react-hot-toast for notifications
 
 const AddDepartment = () => {
-    const [department, setDepartment] = useState({
-        dep_name: '',
-        description: ''
-    })
-    const navigate = useNavigate()
-    const apiUrl = import.meta.env.VITE_API_URL;
-      // `${apiUrl}/api/`
+  const [department, setDepartment] = useState({
+    dep_name: '',
+    description: '',
+  });
+  
+  const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL; // API base URL
 
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setDepartment({...department, [name] : value})
-    }
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setDepartment({ ...department, [name]: value });
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            const response = await axios.post(`${apiUrl}/api/department/add`, department, {
-                headers: {
-                    "Authorization" : `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            if(response.data.success) {
-                navigate("/admin-dashboard/departments")
-            }
-        } catch(error) {
-            if(error.response && !error.response.data.success) {
-                alert(error.response.data.error)
-            }
-        }
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${apiUrl}/api/department/add`, department, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Department added successfully!"); // Success toast notification
+        navigate("/admin-dashboard/departments"); // Redirect to departments page
+      } else {
+        toast.error("Failed to add department."); // Error toast notification
+      }
+    } catch (error) {
+      // Handle errors and show proper toast notifications
+      if (error.response) {
+        toast.error(error.response.data.error || "An error occurred.");
+      } else {
+        toast.error("Network error. Please try again later.");
+      }
     }
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-md shadow-md w-96">
       <h2 className="text-2xl font-bold mb-6">Add New Department</h2>
       <form onSubmit={handleSubmit}>
+        {/* Department Name Input */}
         <div>
-          <label
-            htmlFor="dep_name"
-            className="text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="dep_name" className="text-sm font-medium text-gray-700">
             Department Name
           </label>
           <input
@@ -55,11 +63,9 @@ const AddDepartment = () => {
           />
         </div>
 
+        {/* Description Input */}
         <div className="mt-3">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             Description
           </label>
           <textarea
@@ -71,6 +77,7 @@ const AddDepartment = () => {
           />
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           className="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded"
