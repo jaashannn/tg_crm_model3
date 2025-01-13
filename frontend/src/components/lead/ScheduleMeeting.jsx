@@ -14,6 +14,8 @@ const ScheduleMeeting = ({ onClose, leadId }) => {
     agenda: "",
     notes: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -43,12 +45,21 @@ const ScheduleMeeting = ({ onClose, leadId }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!formData.title || !formData.assignedTo || !formData.meetingDate || !formData.meetingTime) {
       toast.error("Please fill in all required fields!");
       return;
     }
 
+    const selectedDate = new Date(`${formData.meetingDate}T${formData.meetingTime}:00`);
+    const currentDate = new Date();
+
+    if (selectedDate < currentDate) {
+      toast.error("Meeting date and time cannot be in the past.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const response = await axios.post(
         `${apiUrl}/api/meeting/add`,
@@ -69,8 +80,11 @@ const ScheduleMeeting = ({ onClose, leadId }) => {
         toast.error("Failed to schedule the meeting.");
       }
     } catch (error) {
+      setError("Error scheduling meeting. Please try again.");
       console.error("Error scheduling meeting:", error);
       toast.error("Error scheduling meeting. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,6 +176,8 @@ const ScheduleMeeting = ({ onClose, leadId }) => {
             />
           </div>
 
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <div className="flex justify-end space-x-2">
             <button
               type="button"
@@ -172,9 +188,10 @@ const ScheduleMeeting = ({ onClose, leadId }) => {
             </button>
             <button
               type="submit"
+              disabled={loading}
               className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
             >
-              Schedule
+              {loading ? "Scheduling..." : "Schedule"}
             </button>
           </div>
         </form>

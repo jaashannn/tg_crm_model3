@@ -47,12 +47,7 @@ const LeadList = () => {
           toast.success('Leads loaded successfully!');  // Success Toast
         }
       } catch (error) {
-        console.log(error.message);
-        if (error.response && !error.response.data.success) {
-          toast.error(error.response.data.error);  // Error Toast
-        } else {
-          toast.error('Failed to load leads');  // Error Toast
-        }
+        handleError(error);
       } finally {
         setLeadLoading(false);
       }
@@ -61,11 +56,15 @@ const LeadList = () => {
     fetchLeads();
   }, []);
 
+  const handleError = (error) => {
+    console.error(error);
+    const errorMessage = error.response?.data?.error || 'Failed to load leads';
+    toast.error(errorMessage);  // Error Toast
+  };
+
   const handleFilter = (e) => {
-    const records = leads.filter((lead) =>
-      lead.name.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    setFilteredLeads(records);
+    const query = e.target.value.toLowerCase();
+    setFilteredLeads(leads.filter((lead) => lead.name.toLowerCase().includes(query)));
   };
 
   const handleRowClick = (row) => {
@@ -128,12 +127,12 @@ const LeadList = () => {
   
         if (response.data.success) {
           toast.success(response.data.message);  // Success Toast
-          setLeads((prev) => [...prev, ...validatedData]);
-          setFilteredLeads((prev) => [...prev, ...validatedData]);
+          const updatedLeads = [...leads, ...validatedData];
+          setLeads(updatedLeads);
+          setFilteredLeads(updatedLeads);
         }
       } catch (error) {
-        console.error("Error during import:", error.response?.data || error.message);
-        toast.error("Failed to import leads");  // Error Toast
+        handleError(error);
       }
     };
   
