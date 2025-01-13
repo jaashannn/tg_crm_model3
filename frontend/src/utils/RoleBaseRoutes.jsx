@@ -1,22 +1,22 @@
 import React from 'react';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import Loader from '../components/Loading/Loader';
+import Loader from '../components/Loading/Loader'; // Ensure correct import path
 
 const RoleBaseRoutes = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
 
-  // Show loader if the user's authentication status is loading
+  // Show loader while authentication state is being determined
   if (loading) {
     return <Loader />;
   }
 
-  // If the user does not have the required role, navigate to unauthorized page
+  // Redirect to unauthorized page if the user exists but does not have the required role
   if (user && !requiredRole.includes(user.role)) {
     return <Navigate to="/unauthorized" />;
   }
 
-  // If the user is logged in and has the correct role, render the children
+  // Redirect to login page if the user is not authenticated
   return user ? children : <Navigate to="/login" />;
 };
 
