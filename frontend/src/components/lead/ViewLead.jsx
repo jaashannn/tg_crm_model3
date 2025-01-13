@@ -11,6 +11,8 @@ import {
   FaRegPaperPlane,
 } from "react-icons/fa";
 import Loader from "../Loading/Loader";
+import ScheduleMeeting from "./ScheduleMeeting";
+
 
 const ViewLead = () => {
   const { id } = useParams();
@@ -24,6 +26,17 @@ const ViewLead = () => {
   const [callNotes, setCallNotes] = useState("");
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  const [showScheduleMeeting, setShowScheduleMeeting] = useState(false);
+  // Function to toggle the ScheduleMeeting modal
+  const handleMeetingButtonClick = () => {
+    setShowScheduleMeeting(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowScheduleMeeting(false);
+  };
+
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -155,7 +168,7 @@ const ViewLead = () => {
                     <FaEnvelope className="mr-2" /> Email
                   </button>
                   <button className="flex items-center px-4 py-2 bg-purple-500 text-white rounded-md shadow-md hover:bg-purple-600">
-                    <FaUserPlus className="mr-2" 
+                    <FaUserPlus className="mr-2"
                     /> Assign
                   </button>
                   <button className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600">
@@ -177,6 +190,22 @@ const ViewLead = () => {
                   >
                     <FaPhone className="mr-2" /> Call Log
                   </button>
+                  {/* Add Meeting Button */}
+
+                  <button
+                    onClick={handleMeetingButtonClick}
+                    className="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-md shadow-md hover:bg-indigo-600"
+                  >
+                    <FaRegPaperPlane className="mr-2" /> Meeting
+                  </button>
+
+                  {/* ScheduleMeeting modal */}
+                  {showScheduleMeeting && (
+                    <ScheduleMeeting
+                      onClose={handleCloseModal}
+                      leadId={id} // Replace with the actual lead ID being viewed
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -347,7 +376,7 @@ const ViewLead = () => {
             </div>
           )}
         </div>
-      ) }
+      )}
     </>
   );
 };

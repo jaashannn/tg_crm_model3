@@ -16,8 +16,8 @@ router.get('/', authMiddleware, getTasks);
 // Fetch a single task by ID
 // router.get('/:id', authMiddleware, getTask);
 
-// // Add a new task (when a lead is assigned to an employee)
-// router.post('/add', authMiddleware, createTask);
+// Add a new task (when a lead is assigned to an employee)
+router.post('/add-task', authMiddleware, createTask);
 
 // // Update an existing task (e.g., marking it as completed or updating its details)
 // router.put('/:id', authMiddleware, updateTask);

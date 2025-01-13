@@ -2,6 +2,7 @@ import Task from "../models/Task.js";
 import Employee from "../models/Employee.js";
 import Lead from "../models/Lead.js";
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid"; // For generating unique taskId
 
 // Fetch all tasks
 export const getTasks = async (req, res) => {
@@ -15,27 +16,62 @@ export const getTasks = async (req, res) => {
   }
 };
 
-// Add a new task
+//create task
+
 export const createTask = async (req, res) => {
-  const { leadId, employeeId, title, description } = req.body;
   try {
-    const lead = await Lead.findById(leadId);
-    if (!lead) return res.status(404).json({ error: "Lead not found." });
+    const { leadId, description, priority, deadline } = req.body;
 
+    // console.log(req.body,"its body")
+
+    // Validation
+    if (!employeeId || !description || !priority || !deadline) {
+      return res.status(400).json({ success: false, error: "Missing required fields." });
+    }
+
+    // Check if employee exists
     const employee = await Employee.findById(employeeId);
-    if (!employee) return res.status(404).json({ error: "Employee not found." });
+    if (!employee) {
+      return res.status(404).json({ success: false, error: "Employee not found." });
+    }
 
-    const task = new Task({ leadId, assignedTo: employee._id, title, description });
+    // If leadId is provided, check if it exists
+    let lead = null;
+    if (leadId) {
+      lead = await Lead.findById(leadId);
+      if (!lead) {
+        return res.status(404).json({ success: false, error: "Lead not found." });
+      }
+    }
+
+    // Create the task
+    const task = new Task({
+      taskId: uuidv4(), // Generate unique taskId
+      lead: lead ? lead._id : null,
+      employee: employee._id,
+      createdBy: req.user._id, // Assuming `req.user` contains the admin's ID
+      assignedBy: req.user._id, // Admin assigning the task
+      description,
+      priority,
+      deadline,
+    });
+
     await task.save();
 
-    // Optionally, you can update the lead's status here if needed
-    await Lead.findByIdAndUpdate(leadId, { status: "Assigned" });
-
-    res.status(201).json({ success: true, task });
+    res.status(201).json({
+      success: true,
+      message: "Task created successfully.",
+      task,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create task." });
+    console.error("Error creating task:", error);
+    res.status(500).json({
+      success: false,
+      error: "An error occurred while creating the task.",
+    });
   }
 };
+
 
 // Fetch a single task by ID
 export const getTask = async (req, res) => {

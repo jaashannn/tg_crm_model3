@@ -148,7 +148,7 @@ const EmployeeViewLead = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-bold">Actions</h3>
                 <div className="flex flex-wrap gap-4">
-                 
+
                   <button
                     onClick={() => setIsNoteModalOpen(true)}
                     className="flex items-center px-4 py-2 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600"
@@ -161,6 +161,12 @@ const EmployeeViewLead = () => {
                     className="flex items-center px-4 py-2 bg-teal-500 text-white rounded-md shadow-md hover:bg-teal-600"
                   >
                     <FaPhone className="mr-2" /> Call Log
+                  </button>
+                  <button className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600">
+                    <FaPhone className="mr-2" /> Call
+                  </button>
+                  <button className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600">
+                    <FaEnvelope className="mr-2" /> Email
                   </button>
                 </div>
               </div>

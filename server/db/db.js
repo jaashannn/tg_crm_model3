@@ -12,7 +12,6 @@ const connectToDatabase = async () => {
         }
 
         await mongoose.connect(uri, {
-            useNewUrlParser: true,      // Ensures proper URL parsing
             useUnifiedTopology: true,  // Uses the latest MongoDB connection engine
         });
 

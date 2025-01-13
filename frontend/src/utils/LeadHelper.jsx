@@ -9,11 +9,6 @@ export const columns = [
     width: "70px",
   },
   {
-    name: "Lead ID",
-    selector: (row) => row.leadId,
-    width: "150px",
-  },
-  {
     name: "Lead Name",
     selector: (row) => row.name,
     sortable: true,
@@ -94,7 +89,7 @@ export const LeadButtons = ({ Id }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex space-x-3 ">
+    <div className="flex flex-wrap gap-3 justify-start sm:flex-row sm:gap-4 lg:flex-row lg:gap-5">
       <button
         className="px-3 py-1 bg-blue-600 text-white"
         onClick={(e) => { e.stopPropagation(); navigate(`/admin-dashboard/leads/assign/${Id}`); }}

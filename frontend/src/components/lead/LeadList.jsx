@@ -5,8 +5,9 @@ import DataTable from 'react-data-table-component';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
+import { toast } from 'react-hot-toast';  // Import react-hot-toast
 
-import Loader from '../Loading/Loader'
+import Loader from '../Loading/Loader';
 
 const LeadList = () => {
   const [leads, setLeads] = useState([]);
@@ -19,7 +20,7 @@ const LeadList = () => {
   useEffect(() => {
     const fetchLeads = async () => {
       setLeadLoading(true);
-      try {2
+      try {
         const response = await axios.get(`${apiUrl}/api/lead`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -38,15 +39,19 @@ const LeadList = () => {
             company: lead.company,
             source: lead.source,
             status: lead.status,
+            createdAt: lead.createdAt,  // Include createdAt field
           }));
 
           setLeads(data);
           setFilteredLeads(data);
+          toast.success('Leads loaded successfully!');  // Success Toast
         }
       } catch (error) {
         console.log(error.message);
         if (error.response && !error.response.data.success) {
-          alert(error.response.data.error);
+          toast.error(error.response.data.error);  // Error Toast
+        } else {
+          toast.error('Failed to load leads');  // Error Toast
         }
       } finally {
         setLeadLoading(false);
@@ -74,6 +79,7 @@ const LeadList = () => {
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blob, 'leads.xlsx');
+    toast.success('Leads exported successfully!');  // Success Toast
   };
 
   const handleImport = async (e) => {
@@ -104,7 +110,7 @@ const LeadList = () => {
       );
   
       if (invalidLeads.length > 0) {
-        alert("Some leads have missing required fields. Please correct them.");
+        toast.error("Some leads have missing required fields. Please correct them.");  // Error Toast
         console.error("Invalid Leads:", invalidLeads);
         return;
       }
@@ -121,37 +127,54 @@ const LeadList = () => {
         );
   
         if (response.data.success) {
-          alert(response.data.message);
+          toast.success(response.data.message);  // Success Toast
           setLeads((prev) => [...prev, ...validatedData]);
           setFilteredLeads((prev) => [...prev, ...validatedData]);
         }
       } catch (error) {
         console.error("Error during import:", error.response?.data || error.message);
-        alert("Failed to import leads");
+        toast.error("Failed to import leads");  // Error Toast
       }
     };
   
     reader.readAsArrayBuffer(file);
   };
-  
-  
+
+  const handleSort = (order) => {
+    const sortedLeads = [...leads].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+
+      return order === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+
+    setFilteredLeads(sortedLeads);
+  };
+
   if (leadLoading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-screen-xl mx-auto">
       <div className="text-center">
         <h3 className="text-2xl font-bold">Manage Leads</h3>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-4">
         <input
           type="text"
           placeholder="Search By Lead Name"
           className="px-4 py-0.5 border"
           onChange={handleFilter}
         />
-        <div>
+        <div className="flex items-center space-x-4">
+          <select
+            className="border px-4 py-1 rounded"
+            onChange={(e) => handleSort(e.target.value)}
+          >
+            <option value="asc">Sort by Created Date (Ascending)</option>
+            <option value="desc">Sort by Created Date (Descending)</option>
+          </select>
           <label className="px-4 py-1 bg-teal-600 rounded text-white cursor-pointer">
             Import Leads
             <input
@@ -175,7 +198,7 @@ const LeadList = () => {
           </Link>
         </div>
       </div>
-      <div className="mt-6">
+      <div className="mt-6 overflow-x-auto">
         <DataTable
           columns={columns}
           data={filteredLeads}

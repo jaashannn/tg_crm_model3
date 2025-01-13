@@ -4,13 +4,14 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-800 text-white py-6">
-      <div className="container mx-auto px-4 text-center md:text-left">
-      <div className="flex justify-center items-center p-4 bg-gray-800 text-white">
-      <p className="text-sm">
-        Testgrid - A software testing company using AI for testing.
-      </p>
-    </div>
+    <footer className="bg-gray-800 text-white py-6 w-full">
+      <div className="w-full px-4 text-center md:text-left">
+        {/* Footer content */}
+        <div className="flex justify-center items-center p-4 bg-gray-800 text-white">
+          <p className="text-sm">
+            Testgrid - A software testing company using AI for testing.
+          </p>
+        </div>
 
         {/* Footer Bottom */}
         <div className="mt-6 border-t border-pink-400 pt-4 text-center">

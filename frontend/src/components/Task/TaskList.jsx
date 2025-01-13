@@ -17,36 +17,25 @@ const TaskList = () => {
       try {
         const response = await axios.get(`${apiUrl}/api/task`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        // console.log(response)
 
         if (response.data.success) {
           let sno = 1;
-        
-          console.log(response.data.tasks,"tasks")
-          const data = response.data.tasks.map((task) => ({
-
-            // _id: task._id,
+          const formattedTasks = response.data.tasks.map((task) => ({
             sno: sno++,
             taskId: task.taskId,
-            leadName: task.lead.name,  // Assuming lead name is populated
-            employeeName: task.employee.name,  // Assuming employee name is populated
-            status: task.status,
-            description: task.description,
-            createdAt: task.createdAt,
-            
+            leadName: task.lead?.name || 'N/A',
+            employeeName: task.employee?.name || 'N/A',
+            status: task.status || 'Pending',
           }));
 
-          // console.log(response.data.tasks.task,"employee");
-          console.log(data)
-
-          setTasks(data);
-          setFilteredTasks(data);
+          setTasks(formattedTasks);
+          setFilteredTasks(formattedTasks);
         }
       } catch (error) {
-        console.log(error.message);
+        console.error('Error fetching tasks:', error.message);
         if (error.response && !error.response.data.success) {
           alert(error.response.data.error);
         }
@@ -56,56 +45,58 @@ const TaskList = () => {
     };
 
     fetchTasks();
-  }, []);
+  }, [apiUrl]);
 
   const handleFilter = (e) => {
-    const records = tasks.filter((task) =>
-      task.taskId.toLowerCase().includes(e.target.value.toLowerCase())
+    const query = e.target.value.toLowerCase();
+    const filtered = tasks.filter((task) =>
+      task.taskId.toLowerCase().includes(query) ||
+      task.leadName.toLowerCase().includes(query) ||
+      task.employeeName.toLowerCase().includes(query)
     );
-    setFilteredTasks(records);
+    setFilteredTasks(filtered);
   };
 
-  const handleRowClick = (row) => {
-    navigate(`/admin-dashboard/tasks/${row._id}`);
-  };
+  // const handleRowClick = (row) => {
+  //   navigate(`/admin-dashboard/tasks/${row.taskId}`);
+  // };
 
   if (taskLoading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
     <div className="p-6">
       <div className="text-center">
-        <h3 className="text-2xl font-bold">Manage Tasks</h3>
+        <h3 className="text-2xl font-bold mb-4">Task Management</h3>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center my-4">
         <input
           type="text"
-          placeholder="Search By Task ID"
-          className="px-4 py-0.5 border"
+          placeholder="Search by Task ID, Lead, or Employee"
+          className="px-4 py-2 border rounded w-1/3"
           onChange={handleFilter}
         />
         <Link
           to="/admin-dashboard/add-task"
-          className="px-4 py-1 bg-teal-600 rounded text-white"
+          className="px-4 py-2 bg-teal-600 rounded text-white hover:bg-teal-700 transition"
         >
           Add New Task
         </Link>
       </div>
-      <div className="mt-6">
+      <div className="mt-6 shadow-lg rounded-lg overflow-hidden">
         <DataTable
           columns={[
-            { name: 'S.No', selector: row => row.sno },
-            // { name: 'Task ID', selector: row => row.taskId },
-            { name: 'Lead', selector: row => row.leadName },
-            { name: 'Employee', selector: row => row.employeeName },
-            { name: 'Status', selector: row => row.status },
-            { name: 'Description', selector: row => row.description },
-            { name: 'Created At', selector: row => row.createdAt },
+            { name: 'S.No', selector: (row) => row.sno, sortable: true },
+            { name: 'Lead', selector: (row) => row.leadName, sortable: true },
+            { name: 'Employee', selector: (row) => row.employeeName, sortable: true },
+            { name: 'Status', selector: (row) => row.status, sortable: true },
           ]}
           data={filteredTasks}
           pagination
-          onRowClicked={handleRowClick}
+          // onRowClicked={handleRowClick}
+          highlightOnHover
+          responsive
         />
       </div>
     </div>

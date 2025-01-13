@@ -52,6 +52,8 @@ const addEmployee = async (req, res) => {
 
     const newEmployee = new Employee({
       userId: savedUser._id,
+      name,
+      email,
       employeeId,
       dob,
       gender,

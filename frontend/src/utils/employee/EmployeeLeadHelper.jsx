@@ -9,11 +9,6 @@ export const employeeColumns = [
     width: "70px",
   },
   {
-    name: "Lead ID",
-    selector: (row) => row.leadId,
-    width: "150px",
-  },
-  {
     name: "Lead Name",
     selector: (row) => row.name,
     sortable: true,
@@ -28,11 +23,6 @@ export const employeeColumns = [
     name: "Phone",
     selector: (row) => row.phone,
     width: "150px",
-  },
-  {
-    name: "Company",
-    selector: (row) => row.company,
-    width: "180px",
   },
   {
     name: "Action",

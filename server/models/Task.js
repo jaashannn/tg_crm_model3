@@ -1,17 +1,26 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
-const taskSchema = new Schema({
-  taskId: { type: String, required: true, unique: true },
-  lead: { type: Schema.Types.ObjectId, ref: "Lead", required: true },
-  employee: { type: Schema.Types.ObjectId, ref: "Employee", required: true },
-  assignedTo: { type: Schema.Types.ObjectId, ref: "Employee" }, // Add this line if you need `assignedTo`
-  status: { type: String, enum: ["Pending", "In Progress", "Completed"], default: "Pending" },
-  description: { type: String },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
-
+const taskSchema = new Schema(
+  {
+    taskId: { type: String, required: true, unique: true }, // Unique task identifier
+    lead: { type: Schema.Types.ObjectId, ref: "Lead", required: false }, // Optional, for tasks without leads
+    employee: { type: Schema.Types.ObjectId, ref: "Employee", required: true }, // Assigned employee
+    createdBy: { type: Schema.Types.ObjectId, ref: "Employee", required: true }, // Admin/employee who created the task
+    assignedBy: { type: Schema.Types.ObjectId, ref: "Employee", required: true }, // Admin who assigned the task
+    status: {
+      type: String,
+      enum: ["Pending", "In Progress", "Completed", "Skipped"],
+      default: "Pending",
+    },
+    description: { type: String, required: true }, // Detailed task description
+    priority: { type: String, enum: ["Low", "Medium", "High"], default: "Low" }, // Priority level
+    deadline: { type: Date, required: true }, // Deadline for the task
+    createdAt: { type: Date, default: Date.now }, // Timestamp for creation
+    updatedAt: { type: Date, default: Date.now }, // Timestamp for updates
+  },
+  { timestamps: true } // Automatically adds `createdAt` and `updatedAt` fields
+);
 
 const Task = mongoose.model("Task", taskSchema);
 export default Task;

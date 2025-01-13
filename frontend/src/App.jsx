@@ -62,6 +62,7 @@ import ViewTask from "./components/Task/ViewTask";
 import EmployeeViewTask from "./components/Task/employee/EmployeeViewTask";
 
 import EmployeeMeeting from "./components/meeting/employee/EmployeeMeeting"
+import AssignTask from "./components/Task/AssignTask";
 
 function App() {
   return (
@@ -144,6 +145,12 @@ function App() {
             path="/admin-dashboard/tasks/:id"
             element={<ViewTask />}
           ></Route>
+
+          <Route
+            path="/admin-dashboard/add-task"
+            element={<AssignTask />}
+          ></Route>
+  
 
 
 

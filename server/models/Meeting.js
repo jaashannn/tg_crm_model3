@@ -1,30 +1,24 @@
-// models/Meeting.js
-
 import mongoose from 'mongoose';
 
 const meetingSchema = new mongoose.Schema(
   {
-    // Reference to either Task or Lead depending on the role
-    taskId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Task',
-      required: function () {
-        return this.createdBy === 'employee'; // Only required if created by employee
-      },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    leadId: {
+    lead: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Lead',
-      required: function () {
-        return this.createdBy === 'admin'; // Only required if created by admin
-      },
+      required: true,
     },
-    employeeId: {
+    assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Employee',
+      required: true,
     },
     meetingDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     meetingTime: {
@@ -35,7 +29,9 @@ const meetingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    notes: String,
+    notes: {
+      type: String,
+    },
     createdBy: {
       type: String,
       enum: ['admin', 'employee'],
@@ -45,4 +41,6 @@ const meetingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model('Meeting', meetingSchema);
+const Meeting = mongoose.model('Meeting', meetingSchema);
+
+export default Meeting;
