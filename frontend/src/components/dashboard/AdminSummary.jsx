@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTachometerAlt, FaRegPaperPlane, FaCalendarAlt, FaMoneyBillWave, FaUsers, FaTasks, FaChartLine, FaFileAlt } from 'react-icons/fa';
 import { Line } from 'react-chartjs-2';
-import { useState,useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import axios from 'axios';
-import Loader from '../Loading/Loader'
+import { toast } from 'react-hot-toast'; // Importing react-hot-toast
+import Loader from '../Loading/Loader';
 
 // Register Chart.js components
 ChartJS.register(
@@ -20,13 +20,10 @@ ChartJS.register(
 const Dashboard = () => {
   const [leads, setLeads] = useState([]); // For storing fetched leads
   const [leadCount, setLeadCount] = useState(0); // For lead count
-    const [meetingLoading, setMeetingLoading] = useState(false); // Add loading state for meetings
-      const [meetings, setMeetings] = useState([]);
-      const [meetingCount, setMeetingCount] = useState(0); 
-      const apiUrl = import.meta.env.VITE_API_URL;
-      // `${apiUrl}/api/lead`
-
-      // console.log(apiUrl)
+  const [meetingLoading, setMeetingLoading] = useState(false); // Add loading state for meetings
+  const [meetings, setMeetings] = useState([]); // For storing fetched meetings
+  const [meetingCount, setMeetingCount] = useState(0); // For meeting count
+  const apiUrl = import.meta.env.VITE_API_URL; // Assuming the API URL is available in environment variables
 
   // Fetch Leads Function
   const fetchLeads = async () => {
@@ -41,32 +38,32 @@ const Dashboard = () => {
         const latestLeads = response.data.leads.slice(0, 5); // Get top 5 leads
         setLeads(latestLeads);
         setLeadCount(response.data.leads.length); // Update lead count
+        toast.success("Leads fetched successfully!"); // Success toast
       }
     } catch (error) {
       console.error("Error fetching leads:", error.message);
+      toast.error("Failed to fetch leads!"); // Error toast
     }
   };
 
-   // Fetch meetings
-   const fetchMeetings = async () => {
+  // Fetch Meetings Function
+  const fetchMeetings = async () => {
     setMeetingLoading(true);
     try {
-      // const response = await axios.get("http://localhost:5000/api/meeting");
-
-      const response = await axios.get("http://localhost:5000/api/meeting", {
+      const response = await axios.get(`${apiUrl}/api/meeting`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      
-      // console.log("Meeting")
+
       if (response.data.success) {
         setMeetings(response.data.meetings);
+        setMeetingCount(response.data.meetings.length);
+        toast.success("Meetings fetched successfully!"); // Success toast
       }
-      setMeetingCount(response.data.meetings.length);
-      // console.log(meetings)
     } catch (error) {
       console.error("Error fetching meetings:", error);
+      toast.error("Failed to fetch meetings!"); // Error toast
     } finally {
       setMeetingLoading(false);
     }
@@ -76,7 +73,6 @@ const Dashboard = () => {
     fetchLeads();
     fetchMeetings();
   }, []);
-
 
   // Data for the demo chart
   const data = {
@@ -122,7 +118,12 @@ const Dashboard = () => {
       {/* Dashboard Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-semibold text-[#1b0541]">Dashboard</h1>
-        <button className="px-4 py-2 bg-[#3dd1b4] text-white rounded-lg">Add New Lead</button>
+        <button
+          className="px-4 py-2 bg-[#3dd1b4] text-white rounded-lg"
+          onClick={() => toast.success("New lead added successfully!")} // Success toast on button click
+        >
+          Add New Lead
+        </button>
       </div>
 
       {/* Overview Section */}
@@ -147,7 +148,7 @@ const Dashboard = () => {
           <FaMoneyBillWave className="text-[#1b0541] text-3xl mr-4" />
           <div>
             <h2 className="text-xl font-semibold">Sales</h2>
-            <p className="text-2xl font-bold">$45,000</p>
+            <p className="text-2xl font-bold">$45,000</p> {/* Hardcoded Sales value */}
           </div>
         </div>
 
@@ -155,11 +156,10 @@ const Dashboard = () => {
           <FaUsers className="text-[#1b0541] text-3xl mr-4" />
           <div>
             <h2 className="text-xl font-semibold">Clients</h2>
-            <p className="text-2xl font-bold">85</p>
+            <p className="text-2xl font-bold">85</p> {/* Hardcoded Clients value */}
           </div>
         </div>
       </div>
-
 
       {/* Latest Leads Section */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
@@ -197,7 +197,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-
+      {/* Upcoming Meetings and Sales Performance Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold text-[#1b0541] mb-4">Upcoming Meetings</h2>
@@ -209,7 +209,7 @@ const Dashboard = () => {
                 <div key={meeting._id} className="flex justify-between">
                   <p className="text-lg">{meeting.agenda}</p>
                   <p className="text-sm text-gray-500">
-                   {meeting.meetingDate}
+                    {meeting.meetingDate}
                   </p>
                 </div>
               ))
@@ -218,7 +218,6 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold text-[#1b0541] mb-4">Sales Performance</h2>

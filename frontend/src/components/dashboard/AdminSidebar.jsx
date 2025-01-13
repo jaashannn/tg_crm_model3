@@ -13,6 +13,7 @@ import {
   FaCaretUp,
   FaHandHoldingUsd,
 } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 
 const AdminSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -20,134 +21,50 @@ const AdminSidebar = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
+    toast.success(`Sidebar ${isSidebarOpen ? "closed" : "opened"}`); // Add toast on sidebar toggle
   };
 
   const toggleHr = () => {
     setIsHrOpen((prev) => !prev);
+    toast.success(`HR Section ${isHrOpen ? "collapsed" : "expanded"}`); // Add toast on HR section toggle
   };
+
+  const NavItem = ({ to, icon: Icon, label }) => (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `${isActive ? "bg-gray-900" : ""} flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
+      }
+    >
+      <Icon className="mr-4" />
+      {isSidebarOpen && <span>{label}</span>}
+    </NavLink>
+  );
 
   return (
     <div
-      className={`${
-        isSidebarOpen ? "w-64" : "w-16"
-      } transition-all duration-300 bg-[#1b0541] text-white h-screen flex flex-col`}
+      className={`${isSidebarOpen ? "w-64" : "w-16"} transition-all duration-300 bg-[#1b0541] text-white h-screen flex flex-col`}
     >
-      {/* Toggle Button */}
+      {/* Toggle Sidebar Button */}
       <button
         onClick={toggleSidebar}
         className="text-white p-4 bg-gray-700 hover:bg-gray-600 focus:outline-none"
+        aria-label="Toggle Sidebar"
       >
         <FaBars />
       </button>
 
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto">
-        {/* Dashboard Link */}
-        <NavLink
-          to="/admin-dashboard"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-          exact
-        >
-          <FaTachometerAlt className="mr-4" />
-          {isSidebarOpen && <span>Dashboard</span>}
-        </NavLink>
+        <NavItem to="/admin-dashboard" icon={FaTachometerAlt} label="Dashboard" />
+        <NavItem to="/admin-dashboard/leads" icon={FaRegPaperPlane} label="Leads" />
+        <NavItem to="/admin-dashboard/clients" icon={FaUsers} label="Clients" />
+        <NavItem to="/admin-dashboard/meetings" icon={FaCalendarAlt} label="Meetings" />
+        <NavItem to="/admin-dashboard/demos" icon={FaMoneyBillWave} label="Demos" />
+        <NavItem to="/admin-dashboard/reports" icon={FaBuilding} label="Reports" />
+        <NavItem to="/admin-dashboard/tasks" icon={FaUsers} label="Tasks" />
+        <NavItem to="/admin-dashboard/Deals" icon={FaHandHoldingUsd} label="Deals" />
 
-        {/* Leads Link */}
-        <NavLink
-          to="/admin-dashboard/leads"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaRegPaperPlane className="mr-4" />
-          {isSidebarOpen && <span>Leads</span>}
-        </NavLink>
-
-        {/* Clients Link */}
-        <NavLink
-          to="/admin-dashboard/clients"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaUsers className="mr-4" />
-          {isSidebarOpen && <span>Clients</span>}
-        </NavLink>
-
-        {/* Meetings Link */}
-        <NavLink
-          to="/admin-dashboard/meetings"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaCalendarAlt className="mr-4" />
-          {isSidebarOpen && <span>Meetings</span>}
-        </NavLink>
-
-        {/* Sales Link */}
-        <NavLink
-          to="/admin-dashboard/demos"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaMoneyBillWave className="mr-4" />
-          {isSidebarOpen && <span>Demos</span>}
-        </NavLink>
-
-        {/* Reports Link */}
-        <NavLink
-          to="/admin-dashboard/reports"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaBuilding className="mr-4" />
-          {isSidebarOpen && <span>Reports</span>}
-        </NavLink>
-
-        {/* Tasks Link */}
-        <NavLink
-          to="/admin-dashboard/tasks"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaUsers className="mr-4" />
-          {isSidebarOpen && <span>Tasks</span>}
-        </NavLink>
-
-          {/* Deal links */}
-          <NavLink
-          to="/admin-dashboard/Deals"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaHandHoldingUsd className="mr-4" />
-          {isSidebarOpen && <span>Deals</span>}
-        </NavLink>
-
-            
         {/* HR Section */}
         <div>
           <div
@@ -160,69 +77,16 @@ const AdminSidebar = () => {
 
           {isHrOpen && (
             <>
-              <NavLink
-                to="/admin-dashboard/employees"
-                className={({ isActive }) =>
-                  `${
-                    isActive ? "bg-gray-900" : ""
-                  } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-                }
-              >
-                <FaUsers className="mr-4" />
-                {isSidebarOpen && <span>Employees</span>}
-              </NavLink>
-
-              <NavLink
-                to="/admin-dashboard/salary"
-                className={({ isActive }) =>
-                  `${
-                    isActive ? "bg-gray-900" : ""
-                  } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-                }
-              >
-                <FaMoneyBillWave className="mr-4" />
-                {isSidebarOpen && <span>Salary</span>}
-              </NavLink>
-
-              <NavLink
-                to="/admin-dashboard/leaves"
-                className={({ isActive }) =>
-                  `${
-                    isActive ? "bg-gray-900" : ""
-                  } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-                }
-              >
-                <FaCalendarAlt className="mr-4" />
-                {isSidebarOpen && <span>Leaves</span>}
-              </NavLink>
-
-              <NavLink
-                to="/admin-dashboard/departments"
-                className={({ isActive }) =>
-                  `${
-                    isActive ? "bg-gray-900" : ""
-                  } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-                }
-              >
-                <FaBuilding className="mr-4" />
-                {isSidebarOpen && <span>Departments</span>}
-              </NavLink>
+              <NavItem to="/admin-dashboard/employees" icon={FaUsers} label="Employees" />
+              <NavItem to="/admin-dashboard/salary" icon={FaMoneyBillWave} label="Salary" />
+              <NavItem to="/admin-dashboard/leaves" icon={FaCalendarAlt} label="Leaves" />
+              <NavItem to="/admin-dashboard/departments" icon={FaBuilding} label="Departments" />
             </>
           )}
         </div>
 
         {/* Settings Link */}
-        <NavLink
-          to="/admin-dashboard/setting"
-          className={({ isActive }) =>
-            `${
-              isActive ? "bg-gray-900" : ""
-            } flex items-center px-4 py-2 text-white hover:bg-gray-700 transition-all duration-200`
-          }
-        >
-          <FaCogs className="mr-4" />
-          {isSidebarOpen && <span>Settings</span>}
-        </NavLink>
+        <NavItem to="/admin-dashboard/setting" icon={FaCogs} label="Settings" />
       </div>
     </div>
   );
