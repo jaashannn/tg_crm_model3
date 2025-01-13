@@ -1,57 +1,62 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
-const userContext = createContext();
+const UserContext = createContext();
 
-const authContext = ({ children }) => {
+const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   useEffect(() => {
     const verifyUser = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          const response = await axios.get(
-            `${apiUrl}/api/auth/verify`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await axios.get(`${apiUrl}/api/auth/verify`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (response.data.success) {
             setUser(response.data.user);
+          } else {
+            setUser(null);
           }
         } else {
           setUser(null);
-          setLoading(false)
         }
       } catch (error) {
-        if (error.response && !error.response.data.error) {
-          setUser(null);
-        }
+        toast.error(
+          error.response?.data?.message || "Failed to verify authentication."
+        );
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
     verifyUser();
-  }, []);
+  }, [apiUrl]);
 
-  const login = (user) => {
-    setUser(user);
+  const login = (userData) => {
+    setUser(userData);
+    toast.success("Login successful!");
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
+    toast.success("Logged out successfully!");
   };
+
   return (
-    <userContext.Provider value={{ user, login, logout, loading }}>
+    <UserContext.Provider value={{ user, login, logout, loading }}>
       {children}
-    </userContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(userContext);
-export default authContext;
+export const useAuth = () => useContext(UserContext);
+export default AuthContextProvider;

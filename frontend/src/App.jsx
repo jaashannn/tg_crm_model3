@@ -13,63 +13,59 @@ import Add from "./components/employee/Add";
 import View from "./components/employee/View";
 import Edit from "./components/employee/Edit";
 
-//for leads
+// Lead components
 import LeadList from "./components/lead/LeadList";
-
-//for salary 
-import AddSalary from "./components/salary/Add";
-import ViewSalary from "./components/salary/View";
-import Summary from './components/EmployeeDashboard/Summary'
-import LeaveList from './components/leave/List'
-import AddLeave from './components/leave/Add'
-// import Setting from "./components/EmployeeDashboard/Setting";
-import Table from "./components/leave/Table";
-import Detail from "./components/leave/Detail";
 import ViewLead from "./components/lead/ViewLead";
 import AssignLead from "./components/lead/AssignLead";
+
+// Salary components
+import AddSalary from "./components/salary/Add";
+import ViewSalary from "./components/salary/View";
+
+// Employee dashboard components
+import Summary from "./components/EmployeeDashboard/Summary";
+import LeaveList from "./components/leave/List";
+import AddLeave from "./components/leave/Add";
+import Table from "./components/leave/Table";
+import Detail from "./components/leave/Detail";
+
+// Task components
 import TaskList from "./components/Task/TaskList";
+import ViewTask from "./components/Task/ViewTask";
+import AssignTask from "./components/Task/AssignTask";
 
-//for Deal 
-import ListDeal from "./components/deal/ListDeal"
+// Deal components
+import ListDeal from "./components/deal/ListDeal";
 
-//For report
+// Report and meeting components
 import Reports from "./components/report/Report";
 import Meetings from "./components/meeting/Meeting";
 
+// Settings and other components
 import Setting from "./components/setting/Setting";
-
 import Demos from "./components/demo/Demo";
 import Clients from "./components/client/Client";
-
-//Not found page 
 import NotFound from "./pages/NotFound";
-// import MeetingsList from "./components/meeting/MeetingList";
 
-// *********employee import started***********
-// leads part
-import EmployeeLeadList from './components/lead/employee/EmployeeLeadList';
-import EmployeeViewLead from './components/lead/employee/EmployeeViewLead';
-
-//meeting part 
-
-
-
-// Task part 
-import EmployeeTaskList from './components/Task/employee/EmployeeTaskList'
-import Profile from "./components/profile/Profile";
-import ViewTask from "./components/Task/ViewTask";
-
+// Employee-specific components
+import EmployeeLeadList from "./components/lead/employee/EmployeeLeadList";
+import EmployeeViewLead from "./components/lead/employee/EmployeeViewLead";
+import EmployeeTaskList from "./components/Task/employee/EmployeeTaskList";
 import EmployeeViewTask from "./components/Task/employee/EmployeeViewTask";
-
-import EmployeeMeeting from "./components/meeting/employee/EmployeeMeeting"
-import AssignTask from "./components/Task/AssignTask";
+import EmployeeMeeting from "./components/meeting/employee/EmployeeMeeting";
+import Profile from "./components/profile/Profile";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin-dashboard" />}></Route>
-        <Route path="/login" element={<Login />}></Route>
+        {/* Default route redirects to admin dashboard */}
+        <Route path="/" element={<Navigate to="/admin-dashboard" />} />
+
+        {/* Public route for login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Admin dashboard routes */}
         <Route
           path="/admin-dashboard"
           element={
@@ -80,137 +76,57 @@ function App() {
             </PrivateRoutes>
           }
         >
-          <Route index element={<AdminSummary />}></Route>
+          {/* Dashboard Summary */}
+          <Route index element={<AdminSummary />} />
 
-          {/* Route for leads */}
-          <Route
-            path="/admin-dashboard/leads"
-            element={<LeadList />}
-          ></Route>
+          {/* Leads */}
+          <Route path="leads" element={<LeadList />} />
+          <Route path="leads/:id" element={<ViewLead />} />
+          <Route path="leads/assign/:id" element={<AssignLead />} />
 
-          <Route
-            path="/admin-dashboard/leads/:id"
-            element={<ViewLead />}
-          ></Route>
-          <Route
-            path="/admin-dashboard/leads/assign/:id"
-            element={<AssignLead />}
-          ></Route>
+          {/* Deals */}
+          <Route path="deals" element={<ListDeal />} />
 
-          {/* Route for deals */}
+          {/* Reports */}
+          <Route path="reports" element={<Reports />} />
 
-          <Route
-            path="/admin-dashboard/deals"
-            element={<ListDeal />}
-          ></Route>
+          {/* Settings */}
+          <Route path="setting" element={<Setting />} />
 
+          {/* Demos and Clients */}
+          <Route path="demos" element={<Demos />} />
+          <Route path="clients" element={<Clients />} />
 
-          {/* route for report */}
+          {/* Tasks */}
+          <Route path="tasks" element={<TaskList />} />
+          <Route path="tasks/:id" element={<ViewTask />} />
+          <Route path="add-task" element={<AssignTask />} />
 
+          {/* Meetings */}
+          <Route path="meetings" element={<Meetings />} />
 
-          <Route
-            path="/admin-dashboard/reports"
-            element={<Reports />}
-          ></Route>
-          {/* route for setting  */}
+          {/* Departments */}
+          <Route path="departments" element={<DepartmentList />} />
+          <Route path="add-department" element={<AddDepartment />} />
+          <Route path="department/:id" element={<EditDepartment />} />
 
-          <Route
-            path="/admin-dashboard/setting"
-            element={<Setting />}
-          ></Route>
+          {/* Employees */}
+          <Route path="employees" element={<List />} />
+          <Route path="add-employee" element={<Add />} />
+          <Route path="employees/:id" element={<View />} />
+          <Route path="employees/edit/:id" element={<Edit />} />
+          <Route path="employees/salary/:id" element={<ViewSalary />} />
 
-          {/* route for demo */}
+          {/* Salary */}
+          <Route path="salary/add" element={<AddSalary />} />
 
-          <Route
-            path="/admin-dashboard/demos"
-            element={<Demos />}
-          ></Route>
-
-          {/*route for Client */}
-
-          <Route
-            path="/admin-dashboard/clients"
-            element={<Clients />}
-          ></Route>
-
-          {/*route for task */}
-
-          <Route
-            path="/admin-dashboard/tasks"
-            element={<TaskList />}
-          ></Route>
-
-            
-          <Route
-            path="/admin-dashboard/tasks/:id"
-            element={<ViewTask />}
-          ></Route>
-
-          <Route
-            path="/admin-dashboard/add-task"
-            element={<AssignTask />}
-          ></Route>
-  
-
-
-
-          {/* route for meeting */}
-
-          <Route
-            path="/admin-dashboard/meetings"
-            element={<Meetings />}
-          ></Route>
-
-          {/* Route for Deparment */}
-          <Route
-            path="/admin-dashboard/departments"
-            element={<DepartmentList />}
-          ></Route>
-          <Route
-            path="/admin-dashboard/add-department"
-            element={<AddDepartment />}
-          ></Route>
-          <Route
-            path="/admin-dashboard/department/:id"
-            element={<EditDepartment />}
-          ></Route>
-
-          {/* Route for employee */}
-
-          <Route path="/admin-dashboard/employees" element={<List />}></Route>
-
-
-          <Route path="/admin-dashboard/add-employee" element={<Add />}></Route>
-          <Route
-            path="/admin-dashboard/employees/:id"
-            element={<View />}
-          ></Route>
-          <Route
-            path="/admin-dashboard/employees/edit/:id"
-            element={<Edit />}
-          ></Route>
-
-          <Route
-            path="/admin-dashboard/employees/salary/:id"
-            element={<ViewSalary />}
-          ></Route>
-
-          {/* Route for salary  */}
-
-          <Route
-            path="/admin-dashboard/salary/add"
-            element={<AddSalary />}
-          ></Route>
-
-          {/* Route for leaves */}
-          <Route path="/admin-dashboard/leaves" element={<Table />}></Route>
-          <Route path="/admin-dashboard/leaves/:id" element={<Detail />}></Route>
-          <Route path="/admin-dashboard/employees/leaves/:id" element={<LeaveList />}></Route>
-
-          <Route path="/admin-dashboard/setting" element={<Setting />}></Route>
+          {/* Leaves */}
+          <Route path="leaves" element={<Table />} />
+          <Route path="leaves/:id" element={<Detail />} />
+          <Route path="employees/leaves/:id" element={<LeaveList />} />
         </Route>
 
-        {/* Route for employee */}
+        {/* Employee dashboard routes */}
         <Route
           path="/employee-dashboard"
           element={
@@ -221,44 +137,35 @@ function App() {
             </PrivateRoutes>
           }
         >
-          <Route index element={<Summary />}></Route>
+          {/* Employee Dashboard Summary */}
+          <Route index element={<Summary />} />
 
-          <Route path="/employee-dashboard/profile" element={<Profile />}></Route>
-          <Route path="/employee-dashboard/tasks" element={<EmployeeTaskList />}></Route>
-          <Route path="/employee-dashboard/leaves/:id" element={<LeaveList />}></Route>
-          <Route path="/employee-dashboard/add-leave" element={<AddLeave />}></Route>
-          <Route path="/employee-dashboard/salary/:id" element={<ViewSalary />}></Route>
-          <Route path="/employee-dashboard/setting" element={<Setting />}></Route>
+          {/* Profile */}
+          <Route path="profile" element={<Profile />} />
 
-          {/* Route for leads */}
-          <Route
-            path="/employee-dashboard/leads"
-            element={<EmployeeLeadList />}
-          ></Route>
+          {/* Tasks */}
+          <Route path="tasks" element={<EmployeeTaskList />} />
+          <Route path="tasks/:id" element={<EmployeeViewTask />} />
 
-          <Route
-            path="/employee-dashboard/leads/:id"
-            element={<EmployeeViewLead />}
-          ></Route>
+          {/* Leads */}
+          <Route path="leads" element={<EmployeeLeadList />} />
+          <Route path="leads/:id" element={<EmployeeViewLead />} />
 
+          {/* Leaves */}
+          <Route path="leaves/:id" element={<LeaveList />} />
+          <Route path="add-leave" element={<AddLeave />} />
 
-          {/* route for meeting */}
+          {/* Salary */}
+          <Route path="salary/:id" element={<ViewSalary />} />
 
-          <Route
-            path="/employee-dashboard/meetings"
-            element={<EmployeeMeeting />}
-          ></Route>
+          {/* Meetings */}
+          <Route path="meetings" element={<EmployeeMeeting />} />
 
-
-          {/*route for task */}
-
-          <Route
-            path="/employee-dashboard/tasks/:id"
-            element={<EmployeeViewTask />}
-          ></Route>
-
-
+          {/* Settings */}
+          <Route path="setting" element={<Setting />} />
         </Route>
+
+        {/* Catch-all for undefined routes */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
