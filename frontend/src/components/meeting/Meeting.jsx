@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Loader from '../Loading/Loader';
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const Meetings = () => {
   const { user } = useAuth();
@@ -18,78 +19,55 @@ const Meetings = () => {
     notes: '',
   });
   const [loading, setLoading] = useState(true);
-  const [leadLoading, setLeadLoading] = useState(true);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const fetchLeads = async () => {
-    setLeadLoading(true);
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/lead`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      setLoading(true);
 
-      if (response.data.success) {
-        let sno = 1;
-        const data = response.data.leads.map((lead) => ({
-          _id: lead._id,
-          sno: sno++,
-          leadId: lead.leadId,
-          name: lead.name,
-          email: lead.email,
-          phone: lead.phone,
-          company: lead.company,
-          source: lead.source,
-          status: lead.status,
-        }));
+      const [leadRes, employeeRes, meetingRes] = await Promise.all([
+        axios.get(`${apiUrl}/api/lead`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }),
+        axios.get(`${apiUrl}/api/employee`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }),
+        axios.get(`${apiUrl}/api/meeting`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }),
+      ]);
 
-        setLeads(data);
+      if (leadRes.data.success) {
+        setLeads(
+          leadRes.data.leads.map((lead) => ({
+            _id: lead._id,
+            name: lead.name,
+          }))
+        );
+      }
+
+      if (employeeRes.data.success) {
+        setEmployees(
+          employeeRes.data.employees.map((emp) => ({
+            _id: emp._id,
+            name: emp.userId.name,
+          }))
+        );
+      }
+
+      if (meetingRes.data.success) {
+        setMeetings(meetingRes.data.meetings);
       }
     } catch (error) {
-      console.error('Error fetching leads:', error);
+      toast.error("Error fetching data. Please try again.");
     } finally {
-      setLeadLoading(false);
-    }
-  };
-
-  const fetchEmployees = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/employee`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      if (response.data.success) {
-        const data = response.data.employees.map((emp) => ({
-          _id: emp._id,
-          name: emp.userId.name,
-        }));
-        setEmployees(data);
-      }
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-    }
-  };
-
-  const fetchMeetings = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/meeting`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      if (response.data.success) {
-        setMeetings(response.data.meetings);
-      }
-    } catch (error) {
-      console.error('Error fetching meetings:', error);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetchLeads();
-    fetchEmployees();
-    fetchMeetings();
-    setLoading(false);
+    fetchData();
   }, []);
 
   const handleInputChange = (e) => {
@@ -102,15 +80,18 @@ const Meetings = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-  
-    // Log the form data to check if it's being submitted
-    console.log('Form Data:', formData);
-  
-    if (!formData.title || !formData.lead || !formData.assignedTo || !formData.meetingDate || !formData.meetingTime) {
-      alert('Please fill in all required fields!');
+
+    if (
+      !formData.title ||
+      !formData.lead ||
+      !formData.assignedTo ||
+      !formData.meetingDate ||
+      !formData.meetingTime
+    ) {
+      toast.error("Please fill in all required fields.");
       return;
     }
-  
+
     try {
       const response = await axios.post(
         `${apiUrl}/api/meeting/add`,
@@ -122,28 +103,26 @@ const Meetings = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         }
       );
-  
-      console.log('Meeting Added:', response.data); // Log the response
-  
-      setMeetings((prev) => [...prev, response.data.meeting]);
-      setFormData({
-        title: '',
-        lead: '',
-        assignedTo: '',
-        meetingDate: '',
-        meetingTime: '',
-        agenda: '',
-        notes: '',
-      });
+
+      if (response.data.success) {
+        setMeetings((prev) => [...prev, response.data.meeting]);
+        toast.success("Meeting added successfully!");
+        setFormData({
+          title: '',
+          lead: '',
+          assignedTo: '',
+          meetingDate: '',
+          meetingTime: '',
+          agenda: '',
+          notes: '',
+        });
+      }
     } catch (error) {
-      console.error('Error creating meeting:', error);
-      alert('Error adding meeting. Please try again.');
+      toast.error("Error adding meeting. Please try again.");
     }
   };
 
-  if (loading || leadLoading) {
-    return <Loader />;
-  }
+  if (loading) return <Loader />;
 
   return (
     <div className="meetings-page p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,9 +139,9 @@ const Meetings = () => {
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded p-1 text-sm"
               required
+              aria-label="Meeting Title"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">Lead</label>
             <select
@@ -171,6 +150,7 @@ const Meetings = () => {
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded p-1 text-sm"
               required
+              aria-label="Lead"
             >
               <option value="">Select Lead</option>
               {leads.map((lead) => (
@@ -180,7 +160,6 @@ const Meetings = () => {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">Assign Employee</label>
             <select
@@ -189,6 +168,7 @@ const Meetings = () => {
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded p-1 text-sm"
               required
+              aria-label="Assigned Employee"
             >
               <option value="">Select Employee</option>
               {employees.map((employee) => (
@@ -198,7 +178,6 @@ const Meetings = () => {
               ))}
             </select>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Meeting Date</label>
@@ -209,11 +188,11 @@ const Meetings = () => {
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded p-1 text-sm"
                 required
+                aria-label="Meeting Date"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700">Meeting Time (IST)</label>
+              <label className="block text-sm font-medium text-gray-700">Meeting Time</label>
               <input
                 type="time"
                 name="meetingTime"
@@ -221,33 +200,10 @@ const Meetings = () => {
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded p-1 text-sm"
                 required
+                aria-label="Meeting Time"
               />
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Agenda</label>
-            <textarea
-              name="agenda"
-              value={formData.agenda}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded p-1 text-sm"
-              rows="2"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Notes</label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded p-1 text-sm"
-              rows="2"
-            />
-          </div>
-
           <button
             type="submit"
             className="bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-semibold py-2 px-4 rounded hover:shadow-md"
@@ -271,7 +227,8 @@ const Meetings = () => {
                   <strong>Lead:</strong> {meeting.lead ? meeting.lead.name : 'N/A'}
                 </p>
                 <p className="text-sm text-gray-600">
-                  <strong>Date:</strong> {new Date(meeting.meetingDate).toLocaleDateString()}
+                  <strong>Date:</strong>{' '}
+                  {new Intl.DateTimeFormat('en-US').format(new Date(meeting.meetingDate))}
                 </p>
                 <p className="text-sm text-gray-600">
                   <strong>Time:</strong> {meeting.meetingTime}
