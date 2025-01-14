@@ -5,15 +5,8 @@ dotenv.config(); // Load environment variables from .env file
 
 const connectToDatabase = async () => {
     try {
-        const uri = process.env.MONGO_URI; // Extract the connection string from environment variables
-
-        if (!uri) {
-            throw new Error("MONGODB_URL is not defined in the environment variables.");
-        }
-
-        await mongoose.connect(uri, {
-            useUnifiedTopology: true,  // Uses the latest MongoDB connection engine
-        });
+        // Directly use the uri from the environment variables
+        await mongoose.connect(process.env.MONGO_URI); 
 
         console.log("Database connected successfully");
     } catch (error) {
@@ -23,7 +16,7 @@ const connectToDatabase = async () => {
         console.error(error.stack);
 
         // Exit the process if the database connection fails
-        process.exit(1);
+        process.exit(1); // Exiting if the database connection fails
     }
 };
 
