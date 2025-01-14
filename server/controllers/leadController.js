@@ -3,6 +3,7 @@ import Employee from "../models/Employee.js";
 import { assignTask } from './taskController.js';  // Import the assignTask function from taskController
 import ExcelJS from "exceljs";
 
+// Export Leads to Excel
 export const exportLeads = async (req, res) => {
   try {
     const leads = await Lead.find();
@@ -32,10 +33,7 @@ export const exportLeads = async (req, res) => {
       });
     });
 
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.setHeader("Content-Disposition", "attachment; filename=leads.xlsx");
 
     await workbook.xlsx.write(res);
@@ -46,7 +44,7 @@ export const exportLeads = async (req, res) => {
   }
 };
 
-// Import leads
+// Import Leads from client-side data
 export const importLeads = async (req, res) => {
   const { leads } = req.body;
 
@@ -86,46 +84,43 @@ export const importLeads = async (req, res) => {
   }
 };
 
-
 // Fetch all leads
 export const getLeads = async (req, res) => {
   try {
     const leads = await Lead.find().populate("assignedTo", "name email");
-    // console.log(leads,"leads fetched")
     res.status(200).json({ success: true, leads });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to fetch leads." });
-    console.log(error,"error")
   }
 };
 
-// Add a new lead
+// Create a new lead
 export const createLead = async (req, res) => {
   const { leadId, name, email, phone, company, source } = req.body;
   try {
     const lead = new Lead({ leadId, name, email, phone, company, source });
     await lead.save();
-    res.status(201).json(lead);
+    res.status(201).json({ success: true, lead });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to create lead." });
   }
 };
 
 // Fetch a single lead by ID
 export const getLead = async (req, res) => {
-    const { id } = req.params; // Extract lead ID from the request URL
-    try {
-      const lead = await Lead.findById(id).populate("assignedTo", "name email");
-      // console.log(lead)
-      if (!lead) {
-        return res.status(200).json({ success: true, lead });
-      }
-      res.status(200).json({ success: true, lead });
-    } catch (error) {
-      res.status(500).json({success:false, error: "Failed to fetch the lead." });
+  const { id } = req.params;
+  try {
+    const lead = await Lead.findById(id).populate("assignedTo", "name email");
+    if (!lead) {
+      return res.status(404).json({ success: false, error: "Lead not found." });
     }
-  };
-  
+    res.status(200).json({ success: true, lead });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Failed to fetch the lead." });
+  }
+};
 
 // Update lead details
 export const updateLead = async (req, res) => {
@@ -134,58 +129,21 @@ export const updateLead = async (req, res) => {
   try {
     const lead = await Lead.findByIdAndUpdate(id, updates, { new: true });
     if (!lead) return res.status(404).json({ error: "Lead not found." });
-    res.status(200).json(lead);
+    res.status(200).json({ success: true, lead });
   } catch (error) {
     res.status(500).json({ error: "Failed to update lead." });
   }
 };
 
-// // Assign a lead to an employee
-// export const assignLead = async (req, res) => {
-//   // console.log(assignLead)
-//   const { id } = req.params;
-//   const { employeeId } = req.body; // employeeId to whom the lead is assigned
-//   // console.log(employeeId)
-//   try {
-//     const employee = await Employee.findById(employeeId);
-//     if (!employee) return res.status(404).json({ error: "Employee not found." });
-
-//     const lead = await Lead.findByIdAndUpdate(
-//       id,
-//       { assignedTo: employee._id, status: "Assigned" },
-//       { new: true }
-//     );
-//     if (!lead) return res.status(404).json({ error: "Lead not found." });
-
-//     res.status(200).json({ success: true, lead });
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to assign lead." });
-//   }
-// };
-
-// Get assigned lead
-export const getAssignedLeads = async (req, res) => {
-  try {
-    const { employeeId } = req.params;
-    const assignedLeads = await Lead.find({ assignedTo: employeeId });
-    console.log(assignLead)
-    res.status(200).json(assignedLeads);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching leads", error });
-  }
-};
-
-
+// Assign a lead to an employee and create a task for the employee
 export const assignLead = async (req, res) => {
   const { id } = req.params;
-  const { employeeId } = req.body; // employeeId to whom the lead is assigned
+  const { employeeId } = req.body;
 
   try {
-    // Find the employee to whom the lead is being assigned
     const employee = await Employee.findById(employeeId);
     if (!employee) return res.status(404).json({ error: "Employee not found." });
 
-    // Update the lead with the assigned employee
     const lead = await Lead.findByIdAndUpdate(
       id,
       { assignedTo: employee._id, status: "Assigned" },
@@ -193,11 +151,21 @@ export const assignLead = async (req, res) => {
     );
     if (!lead) return res.status(404).json({ error: "Lead not found." });
 
-    // After successfully assigning the lead, create a task for the employee
-    await assignTask(lead, employee);  // Call the assignTask function
+    await assignTask(lead, employee);  // Create task after assigning the lead
 
     res.status(200).json({ success: true, lead });
   } catch (error) {
     res.status(500).json({ error: "Failed to assign lead and create task." });
+  }
+};
+
+// Get leads assigned to a specific employee
+export const getAssignedLeads = async (req, res) => {
+  const { employeeId } = req.params;
+  try {
+    const assignedLeads = await Lead.find({ assignedTo: employeeId });
+    res.status(200).json({ success: true, assignedLeads });
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching leads." });
   }
 };
