@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 export const columns = [
   {
@@ -9,7 +10,7 @@ export const columns = [
   {
     name: "Department Name",
     selector: (row) => row.dep_name,
-    sortable: true
+    sortable: true,
   },
   {
     name: "Action",
@@ -19,39 +20,38 @@ export const columns = [
 
 export const DepartmentButtons = ({ Id, onDepartmentDelete }) => {
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm("Do you want to delte?");
-    if (confirm) {
+    if (window.confirm("Do you really want to delete this department?")) {
       try {
-        const responnse = await axios.delete(
-          `http://localhost:5000/api/department/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        if (responnse.data.success) {
-          onDepartmentDelete();
+        const response = await axios.delete(`${apiUrl}/api/department/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (response.data.success) {
+          toast.success("Department deleted successfully.");
+          onDepartmentDelete(); // Refresh the data or trigger a re-fetch.
         }
       } catch (error) {
-        if (error.response && !error.response.data.success) {
-          alert(error.response.data.error);
-        }
+        toast.error(
+          error.response?.data?.error || "An error occurred while deleting."
+        );
       }
     }
   };
+
   return (
     <div className="flex space-x-3">
       <button
-        className="px-3 py-1 bg-teal-600  text-white"
+        className="px-3 py-1 bg-teal-600 text-white rounded hover:bg-teal-700 focus:ring focus:ring-teal-300"
         onClick={() => navigate(`/admin-dashboard/department/${Id}`)}
       >
         Edit
       </button>
       <button
-        className="px-3 py-1 bg-red-600 text-white"
+        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-300"
         onClick={() => handleDelete(Id)}
       >
         Delete

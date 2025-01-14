@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+// Define columns for the DataTable
 export const columns = [
   {
     name: "S No",
@@ -38,21 +39,23 @@ export const columns = [
   },
   {
     name: "Action",
-    selector: (row) => row.action,
+    cell: (row) => <LeaveButtons Id={row._id} />, // Use LeaveButtons for action buttons
     center: true,
   },
 ];
 
+// Action Buttons for Leave Management
 export const LeaveButtons = ({ Id }) => {
   const navigate = useNavigate();
 
+  // Navigate to leave details view
   const handleView = (id) => {
     navigate(`/admin-dashboard/leaves/${id}`);
   };
 
   return (
     <button
-      className="px-4 py-1 bg-teal-500 rounded text-white hover:bg-teal-600"
+      className="px-4 py-1 bg-teal-500 text-white rounded hover:bg-teal-600 focus:ring focus:ring-teal-300"
       onClick={() => handleView(Id)}
     >
       View

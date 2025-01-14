@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-// Task table columns
+// Define columns for the task table
 export const taskColumns = [
   {
     name: "S.No",
@@ -33,25 +33,36 @@ export const taskColumns = [
   },
   {
     name: "Actions",
-    selector: (row) => row.action,
+    cell: (row) => <TaskButtons Id={row._id} />, // Use TaskButtons for actions
     width: "150px",
   },
 ];
 
-// Task buttons (actions for each task)
-export const TaskButtons = ({ Id }) => (
-  <div className="flex space-x-2">
-    <Link
-      to={`/employee-dashboard/task/${Id}`}
-      className="px-2 py-1 bg-blue-500 text-white text-sm rounded"
-    >
-      View
-    </Link>
-    <button
-      onClick={() => console.log("Mark complete", Id)}
-      className="px-2 py-1 bg-green-500 text-white text-sm rounded"
-    >
-      Complete
-    </button>
-  </div>
-);
+// Task action buttons
+export const TaskButtons = ({ Id }) => {
+  // Function to handle task completion
+  const handleComplete = (id) => {
+    console.log(`Mark task ${id} as complete`);
+    // You can add functionality here to update the task status in your backend
+  };
+
+  return (
+    <div className="flex space-x-2">
+      {/* View Task Link */}
+      <Link
+        to={`/employee-dashboard/task/${Id}`}
+        className="px-2 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition duration-200"
+      >
+        View
+      </Link>
+
+      {/* Complete Task Button */}
+      <button
+        onClick={() => handleComplete(Id)}
+        className="px-2 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition duration-200"
+      >
+        Complete
+      </button>
+    </div>
+  );
+};

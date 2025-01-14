@@ -1,7 +1,18 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
+// Centralized Axios instance
+const axiosInstance = axios.create({
+  baseURL: apiUrl,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
+// Columns configuration for a table
 export const columns = [
   {
     name: "S No",
@@ -33,75 +44,68 @@ export const columns = [
   {
     name: "Action",
     selector: (row) => row.action,
-    center: "true",
+    center: true,
   },
 ];
 
+// Fetch all departments
 export const fetchDepartments = async () => {
-  let departments;
   try {
-    const responnse = await axios.get("http://localhost:5000/api/department", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    if (responnse.data.success) {
-      departments = responnse.data.departments;
+    const response = await axiosInstance.get("/api/department");
+    if (response.data.success) {
+      return response.data.departments;
     }
   } catch (error) {
-    if (error.response && !error.response.data.success) {
-      alert(error.response.data.error);
-    }
+    const errorMessage = error.response?.data?.error || "Failed to fetch departments.";
+    toast.error(errorMessage);
   }
-  return departments;
+  return [];
 };
 
-// employees for salary form
+// Fetch employees for a specific department
 export const getEmployees = async (id) => {
-  let employees;
   try {
-    const responnse = await axios.get(
-      `http://localhost:5000/api/employee/department/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    console.log(responnse)
-    if (responnse.data.success) {
-      employees = responnse.data.employees;
+    const response = await axiosInstance.get(`/api/employee/department/${id}`);
+    if (response.data.success) {
+      return response.data.employees;
     }
   } catch (error) {
-    if (error.response && !error.response.data.success) {
-      alert(error.response.data.error);
-    }
+    const errorMessage = error.response?.data?.error || "Failed to fetch employees.";
+    toast.error(errorMessage);
   }
-  return employees;
+  return [];
 };
 
+// Buttons for employee actions
 export const EmployeeButtons = ({ Id }) => {
   const navigate = useNavigate();
 
   return (
     <div className="flex space-x-3">
       <button
-        className="px-3 py-1 bg-teal-600 text-white"
+        className="px-3 py-1 bg-teal-600 text-white rounded hover:bg-teal-700 focus:ring focus:ring-teal-300"
         onClick={() => navigate(`/admin-dashboard/employees/${Id}`)}
       >
         View
       </button>
       <button
-        className="px-3 py-1 bg-blue-600 text-white"
+        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-300"
         onClick={() => navigate(`/admin-dashboard/employees/edit/${Id}`)}
       >
         Edit
       </button>
-      <button className="px-3 py-1 bg-yellow-600 text-white"
+      <button
+        className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 focus:ring focus:ring-yellow-300"
         onClick={() => navigate(`/admin-dashboard/employees/salary/${Id}`)}
-      >Salary</button>
-      <button className="px-3 py-1 bg-red-600 text-white"
-      onClick={() => navigate(`/admin-dashboard/employees/leaves/${Id}`)}>Leave</button>
+      >
+        Salary
+      </button>
+      <button
+        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-300"
+        onClick={() => navigate(`/admin-dashboard/employees/leaves/${Id}`)}
+      >
+        Leave
+      </button>
     </div>
   );
 };

@@ -1,5 +1,8 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Define columns for the DataTable
 export const columns = [
@@ -45,11 +48,12 @@ export const customStyles = {
   },
   headCells: {
     style: {
-      fontWeight: "bold",
+      fontWeight: "bold", // Bold headers for better visibility
     },
   },
 };
 
+// Conditional row styles
 export const conditionalRowStyles = [
   {
     when: () => true, // Apply to all rows
@@ -63,42 +67,46 @@ export const conditionalRowStyles = [
   },
 ];
 
-// Function to fetch lead data from the backend
+// Fetch lead data from the backend
 export const fetchLeads = async () => {
-  let leads;
   try {
-    const response = await axios.get("http://localhost:5000/api/lead", {
+    const response = await axios.get(`${apiUrl}/api/lead`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
 
     if (response.data.success) {
-      leads = response.data.leads;
+      return response.data.leads;
     }
   } catch (error) {
-    if (error.response && !error.response.data.success) {
-      alert(error.response.data.error);
-    }
+    const errorMessage = error.response?.data?.error || "Failed to fetch leads.";
+    toast.error(errorMessage);
   }
-  return leads;
+  return [];
 };
 
-// Function to handle actions like View, Edit, Delete for leads
+// Buttons for lead actions (View, Edit, Delete, etc.)
 export const LeadButtons = ({ Id }) => {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-wrap gap-3 justify-start sm:flex-row sm:gap-4 lg:flex-row lg:gap-5">
       <button
-        className="px-3 py-1 bg-blue-600 text-white"
-        onClick={(e) => { e.stopPropagation(); navigate(`/admin-dashboard/leads/assign/${Id}`); }}
+        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring focus:ring-blue-300"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/admin-dashboard/leads/assign/${Id}`);
+        }}
       >
         Assign
       </button>
       <button
-        className="px-3 py-1 bg-red-600 text-white"
-        onClick={(e) => { e.stopPropagation(); navigate(`/admin-dashboard/leads/delete/${Id}`); }}
+        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:ring focus:ring-red-300"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/admin-dashboard/leads/delete/${Id}`);
+        }}
       >
         Delete
       </button>
