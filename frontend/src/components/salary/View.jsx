@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const View = () => {
-  const [salaries, setSalaries] = useState(null);
-  const [filteredSalaries, setFilteredSalaries] = useState(null);
+  const [salaries, setSalaries] = useState([]);
+  const [filteredSalaries, setFilteredSalaries] = useState([]);
   const { id } = useParams();
-  let sno = 1;
-  const {user} = useAuth()
+  const { user } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const fetchSalareis = async () => {
+  const fetchSalaries = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/salary/${id}/${user.role}`, {
         headers: {
@@ -23,46 +23,43 @@ const View = () => {
         setFilteredSalaries(response.data.salary);
       }
     } catch (error) {
-      if (error.response && !error.response.data.success) {
-        alert(error.message);
-      }
+      toast.error(error.response?.data?.error || "Failed to fetch salaries.");
     }
   };
 
   useEffect(() => {
-    fetchSalareis();
+    fetchSalaries();
   }, []);
 
-  const filterSalaries = (q) => {
-    const filteredRecords = salaries.filter((leave) =>
-      leave.employeeId.toLocaleLowerCase().includes(q.toLocaleLowerCase())
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = salaries.filter((salary) =>
+      salary.employeeId.employeeId.toLowerCase().includes(query)
     );
-    setFilteredSalaries(filteredRecords);
+    setFilteredSalaries(filtered);
   };
 
   return (
-    <>
-      {filteredSalaries === null ? (
-        <div>Loading ...</div>
-      ) : (
-        <div className="overflow-x-auto p-5">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold">Salary History</h2>
-          </div>
-          <div className=" flex justify-end my-3">
-            <input
-              type="text"
-              placeholder="Search By Emp ID"
-              className="border px-2 rounded-md py-0.5 border-gray-300"
-              onChange={filterSalaries}
-            />
-          </div>
+    <div className="p-5">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold">Salary History</h2>
+      </div>
 
-        {filteredSalaries.length > 0 ?(
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border border-gray-200">
+      <div className="flex justify-end mb-3">
+        <input
+          type="text"
+          placeholder="Search by Employee ID"
+          className="border px-3 py-2 rounded-md"
+          onChange={handleSearch}
+        />
+      </div>
+
+      {filteredSalaries.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full border text-sm text-left text-gray-600">
+            <thead className="bg-gray-100 text-xs uppercase text-gray-700">
               <tr>
-                <th className="px-6 py-3">SNO</th>
+                <th className="px-6 py-3">#</th>
                 <th className="px-6 py-3">Emp ID</th>
                 <th className="px-6 py-3">Salary</th>
                 <th className="px-6 py-3">Allowance</th>
@@ -72,19 +69,12 @@ const View = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredSalaries.map((salary) => (
-                <tr
-                  key={salary.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                >
-                  <td className="px-6 py-3">{sno++}</td>
+              {filteredSalaries.map((salary, index) => (
+                <tr key={salary._id} className="border-b">
+                  <td className="px-6 py-3">{index + 1}</td>
                   <td className="px-6 py-3">{salary.employeeId.employeeId}</td>
-                  <td className="px-6 py-3">
-                    {salary.basicSalary}
-                  </td>
-                  <td className="px-6 py-3">
-                    {salary.allowances}
-                  </td>
+                  <td className="px-6 py-3">{salary.basicSalary}</td>
+                  <td className="px-6 py-3">{salary.allowances}</td>
                   <td className="px-6 py-3">{salary.deductions}</td>
                   <td className="px-6 py-3">{salary.netSalary}</td>
                   <td className="px-6 py-3">
@@ -94,10 +84,11 @@ const View = () => {
               ))}
             </tbody>
           </table>
-          ): <div>No Records</div>}
         </div>
+      ) : (
+        <div className="text-center text-gray-500">No salary records found.</div>
       )}
-    </>
+    </div>
   );
 };
 
