@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import AccountForm from "./AccountForm";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
 
 const Account = () => {
   const [accounts, setAccounts] = useState([]);
@@ -12,6 +13,8 @@ const Account = () => {
   const [showForm, setShowForm] = useState(false);
   const [filterField, setFilterField] = useState("");
   const [filterQuery, setFilterQuery] = useState("");
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
+  const [showSelectionOptions, setShowSelectionOptions] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -20,13 +23,9 @@ const Account = () => {
     const fetchAccounts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${apiUrl}/api/accounts`);
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setAccounts(data);
-        setFilteredAccounts(data);
+        const response = await axios.get(`${apiUrl}/api/accounts`);
+        setAccounts(response.data);
+        setFilteredAccounts(response.data);
       } catch (err) {
         setError(err.message);
         toast.error("Failed to fetch accounts data.");
@@ -38,6 +37,10 @@ const Account = () => {
     fetchAccounts();
   }, []);
 
+  useEffect(() => {
+    setShowSelectionOptions(selectedAccounts.length > 0);
+  }, [selectedAccounts]);
+
   const handleFormSubmit = (newAccount) => {
     setAccounts((prev) => [...prev, newAccount]);
     setFilteredAccounts((prev) => [...prev, newAccount]);
@@ -45,7 +48,7 @@ const Account = () => {
   };
 
   const handleViewDetails = (accountId) => {
-    navigate(`/admin-dashboard/account/${accountId}`); // Navigate to the account details page
+    navigate(`/admin-dashboard/account/${accountId}`);
   };
 
   const handleCancel = () => {
@@ -72,6 +75,58 @@ const Account = () => {
     }
   };
 
+  const toggleSelectAll = () => {
+    if (selectedAccounts.length === filteredAccounts.length) {
+      setSelectedAccounts([]);
+    } else {
+      setSelectedAccounts(filteredAccounts.map(account => account._id));
+    }
+  };
+
+  // const toggleRandomSelect = () => {
+  //   if (selectedAccounts.length > 0) {
+  //     setSelectedAccounts([]);
+  //   } else {
+  //     const randomCount = Math.max(1, Math.floor(filteredAccounts.length / 2));
+  //     const shuffled = [...filteredAccounts].sort(() => 0.5 - Math.random());
+  //     setSelectedAccounts(shuffled.slice(0, randomCount).map(account => account._id));
+  //   }
+  // };
+
+  const toggleAccountSelection = (accountId) => {
+    setSelectedAccounts(prev =>
+      prev.includes(accountId)
+        ? prev.filter(id => id !== accountId)
+        : [...prev, accountId]
+    );
+  };
+
+  const handleAddToTarget = async () => {
+    try {
+      const response = await axios.put(`${apiUrl}/api/accounts/bulk/target`, {
+        accountIds: selectedAccounts
+      });
+      toast.success(response.data.message);
+      // Optionally refresh accounts or update local state
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to add accounts to target');
+      console.error(err);
+    }
+  };
+
+  const handleAddToDartboard = async () => {
+    try {
+      const response = await axios.put(`${apiUrl}/api/accounts/bulk/dartboard`, {
+        accountIds: selectedAccounts
+      });
+      toast.success(response.data.message);
+      // Optionally refresh accounts or update local state
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to add accounts to dartboard');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <Toaster position="top-center" reverseOrder={false} />
@@ -85,7 +140,6 @@ const Account = () => {
         >
           Create Account
         </button>
-
       </div>
 
       {/* Filter Section */}
@@ -115,88 +169,139 @@ const Account = () => {
         </button>
       </div>
 
-
-    
-
-      {/* Form */ }
-  <CSSTransition
-    in={showForm}
-    timeout={300}
-    classNames="slide"
-    unmountOnExit
-  >
-    <div className="absolute top-20 right-5 bg-white shadow-md rounded-lg p-4">
-      <AccountForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
-    </div>
-  </CSSTransition>
-
-  {/* Table */ }
-  <div className="overflow-x-auto">
-    <table className="w-full border-collapse border border-gray-200">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border border-gray-300 px-4 py-2 text-left">
-            Company Name
-          </th>
-          <th className="border border-gray-300 px-4 py-2 text-left">
-            Company LinkedIn
-          </th>
-          <th className="border border-gray-300 px-4 py-2 text-left">
-            Website
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {loading ? (
-          <tr>
-            <td
-              colSpan="3"
-              className="border border-gray-300 px-4 py-2 text-center text-gray-600"
+      {/* Selection Controls */}
+      <div className="flex items-center space-x-4 mb-4">
+        <button
+          onClick={toggleSelectAll}
+          className="px-4 py-2 border border-black text-black bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          {selectedAccounts.length === filteredAccounts.length ? "Deselect All" : "Select All"}
+        </button>
+        
+        {showSelectionOptions && (
+          <div className="flex space-x-2">
+            <button
+              onClick={handleAddToTarget}
+              className="px-4 py-2 border border-green-600 text-green-600 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
             >
-              Loading...
-            </td>
-          </tr>
-        ) : error ? (
-          <tr>
-            <td
-              colSpan="3"
-              className="border border-gray-300 px-4 py-2 text-center text-red-600"
+              Add to Target
+            </button>
+            <button
+              onClick={handleAddToDartboard}
+              className="px-4 py-2 border border-blue-600 text-blue-600 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
             >
-              {error}
-            </td>
-          </tr>
-        ) : filteredAccounts.length > 0 ? (
-          filteredAccounts.map((account) => (
-            <tr
-              key={account._id}
-              className="hover:bg-gray-50 cursor-pointer"
-              onClick={() => handleViewDetails(account._id)}
-            >
-              <td className="border border-gray-300 px-4 py-2">
-                {account.companyName}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {account.companyLinkedin}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {account.website}
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td
-              colSpan="3"
-              className="border border-gray-300 px-4 py-2 text-center text-gray-600"
-            >
-              No accounts available.
-            </td>
-          </tr>
+              Add to Dartboard
+            </button>
+          </div>
         )}
-      </tbody>
-    </table>
-  </div>
-    </div >
+      </div>
+
+      {/* Form */}
+      <CSSTransition
+        in={showForm}
+        timeout={300}
+        classNames="slide"
+        unmountOnExit
+      >
+        <div className="absolute top-20 right-5 bg-white shadow-md rounded-lg p-4">
+          <AccountForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
+        </div>
+      </CSSTransition>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2 text-left w-8">
+                <input
+                  type="checkbox"
+                  checked={selectedAccounts.length === filteredAccounts.length && filteredAccounts.length > 0}
+                  onChange={toggleSelectAll}
+                  className="cursor-pointer"
+                />
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Company Name
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Company LinkedIn
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Website
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="border border-gray-300 px-4 py-2 text-center text-gray-600"
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="border border-gray-300 px-4 py-2 text-center text-red-600"
+                >
+                  {error}
+                </td>
+              </tr>
+            ) : filteredAccounts.length > 0 ? (
+              filteredAccounts.map((account) => (
+                <tr
+                  key={account._id}
+                  className="hover:bg-gray-50"
+                >
+                  <td 
+                    className="border border-gray-300 px-4 py-2 text-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedAccounts.includes(account._id)}
+                      onChange={() => toggleAccountSelection(account._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td 
+                    className="border border-gray-300 px-4 py-2 cursor-pointer"
+                    onClick={() => handleViewDetails(account._id)}
+                  >
+                    {account.companyName}
+                  </td>
+                  <td 
+                    className="border border-gray-300 px-4 py-2 cursor-pointer"
+                    onClick={() => handleViewDetails(account._id)}
+                  >
+                    {account.companyLinkedin}
+                  </td>
+                  <td 
+                    className="border border-gray-300 px-4 py-2 cursor-pointer"
+                    onClick={() => handleViewDetails(account._id)}
+                  >
+                    {account.website}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="border border-gray-300 px-4 py-2 text-center text-gray-600"
+                >
+                  No accounts available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 

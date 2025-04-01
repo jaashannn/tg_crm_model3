@@ -4,6 +4,8 @@ import {
     getAccounts,
     getAccountById,
     updateAccount,
+    bulkAddToTarget,
+    bulkAddToDartboard,
     deleteAccount,
 } from '../controllers/accountController.js';
 
@@ -20,6 +22,8 @@ router.get('/:id', getAccountById);
 
 // Route to update an account by ID
 router.put('/:id', updateAccount);
+router.put('/bulk/target', bulkAddToTarget);
+router.put('/bulk/dartboard', bulkAddToDartboard);
 
 // Route to delete an account by ID
 router.delete('/:id', deleteAccount);

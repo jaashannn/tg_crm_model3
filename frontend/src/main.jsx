@@ -14,8 +14,6 @@ createRoot(document.getElementById('root')).render(
       <div id="app-content" className="hidden sm:block">
         <Toaster position="top-right" /> {/* Toast notifications positioned at the top-right */}
         <App /> {/* Main application component */}
-        {/* Uncomment the Footer if it's meant to be displayed globally */}
-        {/* <Footer /> */}
       </div>
 
       {/* Mobile view */}

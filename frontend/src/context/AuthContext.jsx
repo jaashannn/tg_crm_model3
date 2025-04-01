@@ -7,7 +7,8 @@ const UserContext = createContext();
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiUrl = import.meta.env.VITE_API_URL ;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Added sidebar state
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const verifyUser = async () => {
@@ -51,8 +52,15 @@ const AuthContextProvider = ({ children }) => {
     toast.success("Logged out successfully!");
   };
 
+  // Added sidebar toggle function
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
   return (
-    <UserContext.Provider value={{ user, login, logout, loading }}>
+    <UserContext.Provider
+      value={{ user, login, logout, loading, isSidebarOpen, toggleSidebar }} // Added sidebar values
+    >
       {children}
     </UserContext.Provider>
   );

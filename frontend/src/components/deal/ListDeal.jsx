@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import Modal from "react-modal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useAuth } from "../../context/AuthContext";
 
 // Modal styles
 const customStyles = {
@@ -36,6 +37,7 @@ const stages = [
 
 const ListDeals = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const { isSidebarOpen } = useAuth();
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [deals, setDeals] = useState([]);
@@ -263,7 +265,9 @@ const ListDeals = () => {
 
       {/* Deals Board */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="max-w-[1100px] overflow-x-auto flex gap-4 p-2 mt-4">
+        <div
+          className={`overflow-x-auto flex gap-4 p-2 mt-4 ${isSidebarOpen ? 'max-w-[1100px]' : 'max-w-[1350px]'}`}
+        >
           {stages.map((stage) => {
             const stageDeals = deals.filter((deal) => deal.stage === stage);
             const totalPrice = stageDeals.reduce((sum, deal) => sum + (parseFloat(deal.price) || 0), 0);
@@ -283,11 +287,11 @@ const ListDeals = () => {
                         <p className="text-gray-500 text-sm">No deals</p>
                       ) : (
                         stageDeals.map((deal, index) => (
-                          
+
                           <Draggable key={deal._id} draggableId={deal._id} index={index} >
                             {(provided) => (
                               <div
-                                
+
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}

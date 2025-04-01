@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 import {
   FaBuilding,
   FaCalendarAlt,
@@ -15,19 +16,14 @@ import {
   FaAdn,
   FaClipboard,
   FaClipboardList,
-  FaEnvelope
+  FaEnvelope,
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext"; // Adjust path as needed
 
 const AdminSidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isHrOpen, setIsHrOpen] = useState(false);
-
-  // Toggle sidebar visibility
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen((prev) => !prev);
-    // toast.success(`Sidebar ${isSidebarOpen ? "closed" : "opened"}`);
-  }, [isSidebarOpen]);
+  const { isSidebarOpen, toggleSidebar } = useAuth(); // Use AuthContext for sidebar state
+  const [isHrOpen, setIsHrOpen] = useState(false); // Keep local state for HR section
 
   // Toggle HR section visibility
   const toggleHr = useCallback(() => {
@@ -72,7 +68,7 @@ const AdminSidebar = () => {
         <NavItem to="/admin-dashboard/dartboard" icon={FaClipboardList} label="Dartboard" />
         <NavItem to="/admin-dashboard/tasks" icon={FaUsers} label="Tasks" />
         <NavItem to="/admin-dashboard/reports" icon={FaBuilding} label="Reports" />
-        <NavItem to="/admin-dashboard/sendemails" icon={FaEnvelope} label="email" />
+        <NavItem to="/admin-dashboard/sendemails" icon={FaEnvelope} label="Email" />
 
         {/* HR Section */}
         <div>
@@ -82,12 +78,13 @@ const AdminSidebar = () => {
           >
             <span className="flex items-center">
               <FaClipboard className="mr-2" />
-              {isSidebarOpen } 
+              {isSidebarOpen && "HR"} {/* Show "HR" only when sidebar is open */}
             </span>
-            {isHrOpen ? <FaCaretUp /> : <FaCaretDown />}
+            {isSidebarOpen && (isHrOpen ? <FaCaretUp /> : <FaCaretDown />)}{" "}
+            {/* Show caret only when sidebar is open */}
           </div>
 
-          {isHrOpen && (
+          {isHrOpen && isSidebarOpen && ( // Show HR items only when both are true
             <>
               <NavItem to="/admin-dashboard/employees" icon={FaUsers} label="Employees" />
               <NavItem to="/admin-dashboard/departments" icon={FaBuilding} label="Departments" />

@@ -116,7 +116,7 @@ const Dartboard = () => {
       }
     } catch (error) {
       console.error('Error fetching dartboard data:', error);
-      toast.error('Failed to fetch dartboard data.');
+      // toast.error('Failed to fetch dartboard data.');
     }
     setIsModalOpen(true);
   };
